@@ -932,9 +932,14 @@ mod tests {
     #[test]
     fn private_cards_build_never_updates_from_the_public_channel() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+        let overlay = root.join("..").join("plugins").join("cards").join("tauri.conf.overlay.json");
+        // 開源版沒有 plugins/cards：沒有私有建置可驗
+        if !overlay.is_file() {
+            return;
+        }
         let mut merged = read_json(&root.join("tauri.conf.json"));
         merge_patch(&mut merged, &read_json(&root.join("tauri.updater.conf.json")));
-        merge_patch(&mut merged, &read_json(&root.join("..").join("plugins").join("cards").join("tauri.conf.overlay.json")));
+        merge_patch(&mut merged, &read_json(&overlay));
         let up = &merged["plugins"]["updater"];
         let public: Vec<Value> = read_json(&root.join("tauri.conf.json"))["plugins"]["updater"]["endpoints"].as_array().cloned().unwrap_or_default();
         for e in up["endpoints"].as_array().cloned().unwrap_or_default() {
