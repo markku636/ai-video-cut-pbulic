@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aivc"
+dynamic = ["version"]
+description = "AI Video Cut engine + CLI: track anything in a video, then blur, replace or add effects; local GPU"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+# 依賴刻意不寫在這裡：torch/torchvision 必須從 cu130 index 安裝（requirements-torch.txt），
+# 其餘釘在 requirements.lock.txt。pip 解析到 PyPI 的 torch 會拿到 CPU 版 —— 那是整個專案的頭號風險。
+dependencies = []
+
+[project.scripts]
+aivc = "aivc.cli:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "aivc._version.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# 非 .py 的資料檔必須列在這裡才會進 wheel：setuptools 只自動收 .py，editable 安裝（開發、CI）直接讀原始碼樹所以永遠看不出來。
+# 2026-09-17 驗證者實測：captions/presets.v1.json 沒進 wheel → 安裝版打開任何有字幕的專案（render / track / run）都 FileNotFoundError。
+# 用 **/*.json 而不是只寫 captions/*.json：之後任何子套件新增 JSON 資料檔都自動帶上；
+# 其他副檔名的資料檔要加在這裡 —— tests/test_packaging.py 會掃整個 aivc，任何沒進 wheel 的非 .py 檔都會讓測試失敗。
+[tool.setuptools.package-data]
+aivc = ["**/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# 每一個自訂 marker 都要列在這裡，不然 pytest 每次都噴 PytestUnknownMarkWarning，
+# 真正重要的警告就淹在裡面了（tests/test_pytest_markers.py 會擋住漏登記的 marker）。
+markers = [
+  "gpu: needs CUDA + models (skipped in CI)",
+  "slow: takes seconds (real ffmpeg / large sample frames)",
+]

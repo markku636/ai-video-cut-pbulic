@@ -1,0 +1,1596 @@
+{
+  "version": 1,
+  "cases": {
+    "webm_default_vp9_copy_opus": {
+      "spec": {
+        "container": null,
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "webm",
+        "format": "webm",
+        "ext": ".webm",
+        "video_codec": "libvpx-vp9",
+        "video_args": [
+          "-crf",
+          "16",
+          "-b:v",
+          "0",
+          "-row-mt",
+          "1",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "copy",
+        "audio_codec": "opus",
+        "audio_args": [
+          "-c:a",
+          "copy"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "webm_quality_override": {
+      "spec": {
+        "container": null,
+        "codec": null,
+        "quality": 30,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "webm",
+        "format": "webm",
+        "ext": ".webm",
+        "video_codec": "libvpx-vp9",
+        "video_args": [
+          "-crf",
+          "30",
+          "-b:v",
+          "0",
+          "-row-mt",
+          "1",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "copy",
+        "audio_codec": "opus",
+        "audio_args": [
+          "-c:a",
+          "copy"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_default_hevc_nvenc_aac_dropped": {
+      "spec": {
+        "container": "mp4",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "hevc_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "19",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p",
+          "-tag:v",
+          "hvc1"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [
+          "音軌重新編碼（opus → aac；mp4 容器不接受直接複製）"
+        ],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_cpu_only_encoders_fallback_openh264": {
+      "spec": {
+        "container": "mp4",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "ffv1",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "libopenh264",
+        "video_args": [
+          "-b:v",
+          "4147k",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [
+          "音軌重新編碼（opus → aac；mp4 容器不接受直接複製）"
+        ],
+        "notes": [
+          "預設 hevc_nvenc 不可用 → libopenh264"
+        ],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_gpu_false_openh264": {
+      "spec": {
+        "container": "mp4",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": false,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "libopenh264",
+        "video_args": [
+          "-b:v",
+          "4147k",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [
+          "音軌重新編碼（opus → aac；mp4 容器不接受直接複製）"
+        ],
+        "notes": [
+          "預設 hevc_nvenc 不可用 → libopenh264"
+        ],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_explicit_h264_nvenc_cq23": {
+      "spec": {
+        "container": "mp4",
+        "codec": "h264_nvenc",
+        "quality": 23,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "h264_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "23",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [
+          "音軌重新編碼（opus → aac；mp4 容器不接受直接複製）"
+        ],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_explicit_hevc_nvenc_unavailable_note": {
+      "spec": {
+        "container": "mp4",
+        "codec": "hevc_nvenc",
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "ffv1",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "libopenh264",
+        "video_args": [
+          "-b:v",
+          "4147k",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [
+          "音軌重新編碼（opus → aac；mp4 容器不接受直接複製）"
+        ],
+        "notes": [
+          "hevc_nvenc 不可用（這台機器的 ffmpeg 沒有／不能用）→ libopenh264"
+        ],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_from_mp4_aac_copy": {
+      "spec": {
+        "container": "mp4",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps_num": 30000,
+        "fps_den": 1001,
+        "has_audio": true,
+        "audio_codec": "aac",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "hevc_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "19",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p",
+          "-tag:v",
+          "hvc1"
+        ],
+        "audio_mode": "copy",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "copy"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_silent_source": {
+      "spec": {
+        "container": "mp4",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps_num": 25,
+        "fps_den": 1,
+        "has_audio": false,
+        "audio_codec": null,
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "hevc_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "19",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p",
+          "-tag:v",
+          "hvc1"
+        ],
+        "audio_mode": "none",
+        "audio_codec": null,
+        "audio_args": [],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [],
+        "notes": [
+          "來源沒有音軌"
+        ],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_audio_none": {
+      "spec": {
+        "container": "mp4",
+        "codec": null,
+        "quality": null,
+        "audio": "none",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps_num": 30000,
+        "fps_den": 1001,
+        "has_audio": true,
+        "audio_codec": "aac",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "hevc_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "19",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p",
+          "-tag:v",
+          "hvc1"
+        ],
+        "audio_mode": "none",
+        "audio_codec": null,
+        "audio_args": [],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_audio_encode_forced": {
+      "spec": {
+        "container": "mp4",
+        "codec": null,
+        "quality": null,
+        "audio": "encode",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps_num": 30000,
+        "fps_den": 1001,
+        "has_audio": true,
+        "audio_codec": "aac",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "hevc_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "19",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p",
+          "-tag:v",
+          "hvc1"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [],
+        "notes": [
+          "音軌重新編碼（aac → aac）"
+        ],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mp4_container_from_out_path": {
+      "spec": {
+        "container": null,
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": "D:\\out\\final.MP4",
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mp4",
+        "format": "mp4",
+        "ext": ".mp4",
+        "video_codec": "hevc_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "19",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p",
+          "-tag:v",
+          "hvc1"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [
+          "音軌重新編碼（opus → aac；mp4 容器不接受直接複製）"
+        ],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "webm_from_mp4_aac_reencode_libopus": {
+      "spec": {
+        "container": "webm",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps_num": 30000,
+        "fps_den": 1001,
+        "has_audio": true,
+        "audio_codec": "aac",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "webm",
+        "format": "webm",
+        "ext": ".webm",
+        "video_codec": "libvpx-vp9",
+        "video_args": [
+          "-crf",
+          "16",
+          "-b:v",
+          "0",
+          "-row-mt",
+          "1",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "libopus",
+        "audio_args": [
+          "-c:a",
+          "libopus",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [
+          "音軌重新編碼（aac → libopus；webm 容器不接受直接複製）"
+        ],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "webm_no_libopus_falls_to_opus": {
+      "spec": {
+        "container": "webm",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps_num": 30000,
+        "fps_den": 1001,
+        "has_audio": true,
+        "audio_codec": "aac",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "webm",
+        "format": "webm",
+        "ext": ".webm",
+        "video_codec": "libvpx-vp9",
+        "video_args": [
+          "-crf",
+          "16",
+          "-b:v",
+          "0",
+          "-row-mt",
+          "1",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "opus",
+        "audio_args": [
+          "-c:a",
+          "opus",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [
+          "音軌重新編碼（aac → opus；webm 容器不接受直接複製）"
+        ],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mov_default_prores_ks": {
+      "spec": {
+        "container": "mov",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mov",
+        "format": "mov",
+        "ext": ".mov",
+        "video_codec": "prores_ks",
+        "video_args": [
+          "-profile:v",
+          "3",
+          "-vendor",
+          "apl0",
+          "-pix_fmt",
+          "yuv422p10le"
+        ],
+        "audio_mode": "encode",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "aac",
+          "-b:a",
+          "160k"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [
+          "音軌重新編碼（opus → aac；mov 容器不接受直接複製）"
+        ],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mov_sd_601_pcm_copy": {
+      "spec": {
+        "container": null,
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mov",
+        "width": 720,
+        "height": 480,
+        "fps_num": 30000,
+        "fps_den": 1001,
+        "has_audio": true,
+        "audio_codec": "pcm_s16le",
+        "matrix_assumed": "bt601",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mov",
+        "format": "mov",
+        "ext": ".mov",
+        "video_codec": "prores_ks",
+        "video_args": [
+          "-profile:v",
+          "3",
+          "-vendor",
+          "apl0",
+          "-pix_fmt",
+          "yuv422p10le"
+        ],
+        "audio_mode": "copy",
+        "audio_codec": "pcm_s16le",
+        "audio_args": [
+          "-c:a",
+          "copy"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "smpte170m",
+          "-color_primaries",
+          "smpte170m",
+          "-color_trc",
+          "smpte170m"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mkv_default_ffv1_copy_anything": {
+      "spec": {
+        "container": "mkv",
+        "codec": null,
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mkv",
+        "format": "matroska",
+        "ext": ".mkv",
+        "video_codec": "ffv1",
+        "video_args": [
+          "-level",
+          "3",
+          "-coder",
+          "1",
+          "-context",
+          "1",
+          "-g",
+          "1",
+          "-slices",
+          "4",
+          "-slicecrc",
+          "1",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "copy",
+        "audio_codec": "opus",
+        "audio_args": [
+          "-c:a",
+          "copy"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mkv_explicit_vp9": {
+      "spec": {
+        "container": "mkv",
+        "codec": "libvpx-vp9",
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "webm",
+        "width": 1280,
+        "height": 720,
+        "fps_num": 30,
+        "fps_den": 1,
+        "has_audio": true,
+        "audio_codec": "opus",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mkv",
+        "format": "matroska",
+        "ext": ".mkv",
+        "video_codec": "libvpx-vp9",
+        "video_args": [
+          "-crf",
+          "16",
+          "-b:v",
+          "0",
+          "-row-mt",
+          "1",
+          "-pix_fmt",
+          "yuv420p"
+        ],
+        "audio_mode": "copy",
+        "audio_codec": "opus",
+        "audio_args": [
+          "-c:a",
+          "copy"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": false,
+        "deterministic": true,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    },
+    "mkv_explicit_hevc_nvenc": {
+      "spec": {
+        "container": "mkv",
+        "codec": "hevc_nvenc",
+        "quality": null,
+        "audio": "auto",
+        "gpu": true,
+        "out_path": null,
+        "content_note": null,
+        "tool_version": "0.0.0-golden"
+      },
+      "source": {
+        "container": "mp4",
+        "width": 1920,
+        "height": 1080,
+        "fps_num": 30000,
+        "fps_den": 1001,
+        "has_audio": true,
+        "audio_codec": "aac",
+        "matrix_assumed": "bt709",
+        "color_range": "tv"
+      },
+      "encoders": [
+        "aac",
+        "av1_nvenc",
+        "ffv1",
+        "h264_nvenc",
+        "hevc_nvenc",
+        "libopenh264",
+        "libopus",
+        "libvpx-vp9",
+        "opus",
+        "prores_ks"
+      ],
+      "plan": {
+        "container": "mkv",
+        "format": "matroska",
+        "ext": ".mkv",
+        "video_codec": "hevc_nvenc",
+        "video_args": [
+          "-preset",
+          "p6",
+          "-tune",
+          "hq",
+          "-rc",
+          "vbr",
+          "-cq",
+          "19",
+          "-b:v",
+          "0",
+          "-pix_fmt",
+          "yuv420p",
+          "-tag:v",
+          "hvc1"
+        ],
+        "audio_mode": "copy",
+        "audio_codec": "aac",
+        "audio_args": [
+          "-c:a",
+          "copy"
+        ],
+        "color_args": [
+          "-color_range",
+          "tv",
+          "-colorspace",
+          "bt709",
+          "-color_primaries",
+          "bt709",
+          "-color_trc",
+          "bt709"
+        ],
+        "input_pix_fmt": "yuv420p",
+        "gpu": true,
+        "deterministic": false,
+        "dropped": [],
+        "notes": [],
+        "metadata_args": [
+          "-metadata",
+          "comment=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "description=Edited video. Content altered by AI Video Cut 0.0.0-golden.",
+          "-metadata",
+          "title=Edited video. Content altered by AI Video Cut 0.0.0-golden."
+        ]
+      }
+    }
+  }
+}

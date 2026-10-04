@@ -1,0 +1,13 @@
+{
+  "_comment": "bootstrap-engine.ps1 / bootstrap-engine.sh 讀這份決定要抓哪個 uv：version 必須出現在 `uv --version` 的輸出、url 是 astral-sh/uv 官方 release asset、sha256 是該壓縮檔的 SHA-256（小寫 hex）。頂層 url / sha256 是 Windows 的 zip（ps1 只讀這兩個，保持相容；ps1 遇到 null 只警告不擋，但 build-engine-wheel.mjs --check 不允許 null 進安裝檔）。assets 是各平台的資產，鍵是 uv 的 target triple：sh 版只用 sed 讀，所以【每個平台必須寫在同一行】、sha256 必填（沒有就拒絕下載），build-engine-wheel.mjs --check 會照同樣規則驗；頂層 url / sha256 必須等於 assets 的 Windows 那一行。換版：改 version 與所有 url 的版號，sha256 取自 <url>.sha256 並與自己下載計算的值比對過再填。build-engine-wheel.mjs 會把這份連同兩支腳本一起放進安裝檔的 resources/engine/。",
+  "version": "0.12.15",
+  "url": "https://github.com/astral-sh/uv/releases/download/0.12.15/uv-x86_64-pc-windows-msvc.zip",
+  "sha256": "477bd99a84e34891f2bd4c9152ddeb74e971accccbc59c0f0301f11f08a32d46",
+  "assets": {
+    "x86_64-pc-windows-msvc": { "url": "https://github.com/astral-sh/uv/releases/download/0.12.15/uv-x86_64-pc-windows-msvc.zip", "sha256": "477bd99a84e34891f2bd4c9152ddeb74e971accccbc59c0f0301f11f08a32d46" },
+    "aarch64-apple-darwin": { "url": "https://github.com/astral-sh/uv/releases/download/0.12.15/uv-aarch64-apple-darwin.tar.gz", "sha256": "dc304b9ed1b24174572290fba60ac3f6fe63c73a671f0439e62a91375841964d" },
+    "x86_64-apple-darwin": { "url": "https://github.com/astral-sh/uv/releases/download/0.12.15/uv-x86_64-apple-darwin.tar.gz", "sha256": "e9ca61775532368fe518ab03e7a354c7ecab8ccb3c7d941c775fcc4a362b801b" },
+    "x86_64-unknown-linux-gnu": { "url": "https://github.com/astral-sh/uv/releases/download/0.12.15/uv-x86_64-unknown-linux-gnu.tar.gz", "sha256": "f97935763c04be3e692460a7aaeaaab8fc3b78fcf8b389da820b38ae7423a638" }
+  },
+  "verified": "2026-09-17: 四個 assets 的 sha256 = 官方 <asset>.sha256 = 本機以 gh release download 重新下載計算值（逐一比對一致）；tar.gz 內容為 uv-<triple>/uv 與 uv-<triple>/uvx。Windows zip 內 uv.exe 與 %LOCALAPPDATA%\\net.markkulab.aivideocut\\tools\\uv\\uv.exe（uv 0.12.15 d35f1f270）逐位元相同（sha256 b0131eb55f112aee1836951ba96abec9c897b7bedd3f2fdebb19d710cfb636cd）"
+}

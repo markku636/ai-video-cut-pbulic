@@ -1,0 +1,10 @@
+# macOS（Apple Silicon）專用；從 PyPI 安裝，**不帶** --index-url（bootstrap-engine.sh 會處理）。GPU 走 MPS。
+# 為什麼和 requirements-torch.txt 分檔：cu130 index 沒有任何 macOS wheel；PyPI 上的 macOS torch 就是官方帶 MPS 的版本，
+# 版號沒有 +cu130 之類的後綴，寫在同一檔要靠平台標記切換，誤用時會安靜地跳過（見該檔說明）。
+# 版本必須和 cu130 版一致（2.14.0 / 0.29.0）：兩個平台跑的 SAM 2.1 / transformers 程式路徑才對得上。
+# PyPI 的 torch 2.14.0 / torchvision 0.29.0 只有 macosx_14_0_arm64 wheel：
+#   - Intel Mac（x86_64）沒有可裝的版本 → bootstrap 腳本直接拒絕，doctor 也會說明原因；
+#   - 需要 macOS 14 以上（av 18.1.0 的 arm64 wheel 同樣是 macosx_14_0）。
+# 一定要釘版、而且要在 requirements.lock.txt 之前裝：accelerate 依賴 torch，不先裝會從 PyPI 解出別的版本。
+torch==2.14.0
+torchvision==0.29.0

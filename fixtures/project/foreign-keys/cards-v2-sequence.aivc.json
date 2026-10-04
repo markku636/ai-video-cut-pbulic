@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 2,
+  "app": {
+    "name": "AI Video Cut",
+    "version": "<version>"
+  },
+  "createdAt": "2026-09-17T00:00:00.000Z",
+  "updatedAt": "2026-10-03T00:00:00.000Z",
+  "media": [
+    {
+      "id": "m1",
+      "path": "D:\\media\\sample_clip1.webm",
+      "name": "sample_clip1.webm",
+      "fingerprint": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "probe": {
+        "container": "matroska,webm",
+        "video": {
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "proxy": {
+        "version": 1,
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "frames": 1797,
+        "width": 1280,
+        "height": 720,
+        "scale": 1,
+        "path": "C:\\cache\\media\\0123456789abcdef\\proxy.mp4"
+      },
+      "audio": {
+        "codec": "opus",
+        "sampleRate": 48000,
+        "channels": 2,
+        "channelLayout": "stereo",
+        "startUs": 0,
+        "videoStartUs": 0,
+        "nSamples": 2875200,
+        "gaps": []
+      }
+    }
+  ],
+  "activeMediaId": "m1",
+  "profile": "cards",
+  "shots": {
+    "m1": []
+  },
+  "tracks": {
+    "m1": []
+  },
+  "cardSlots": {
+    "m1": []
+  },
+  "deck": {
+    "styleId": "demo-deck",
+    "source": "builtin"
+  },
+  "insertDefaults": {
+    "macro": "standard",
+    "opacity": 100,
+    "applyMix": 100,
+    "edge": {
+      "choke": 0.6,
+      "softness": 0.8,
+      "falloff": "linear"
+    },
+    "occlusion": {
+      "dilate": 1,
+      "feather": 1.2
+    },
+    "motionBlur": {
+      "shutterAngle": 180,
+      "shutterPhase": "centered",
+      "samples": "auto"
+    },
+    "resample": {
+      "kernel": "lanczos3",
+      "clamp": true
+    },
+    "relight": {
+      "keepHighlights": 100,
+      "sheenLock": "plate"
+    },
+    "grain": {
+      "mode": "measured",
+      "amount": 100
+    }
+  },
+  "exportDefaults": {
+    "codec": "",
+    "quality": null,
+    "audio": "copy",
+    "trackData": {
+      "format": "nuke",
+      "flavour": "cornerpin",
+      "baked": true,
+      "frameOffset": 1
+    }
+  },
+  "sequence": {
+    "id": "seq-1",
+    "name": "sample_clip1",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "width": 1280,
+    "height": 720,
+    "sampleRate": 48000,
+    "video": [
+      {
+        "kind": "clip",
+        "id": "c1",
+        "mediaId": "m1",
+        "srcIn": 60,
+        "srcOut": 360,
+        "enabled": true,
+        "audio": {
+          "enabled": true,
+          "gainDb": 0,
+          "fadeIn": 0,
+          "fadeOut": 0,
+          "fadeCurve": "linear",
+          "envelope": []
+        }
+      },
+      {
+        "kind": "clip",
+        "id": "c2",
+        "mediaId": "m1",
+        "srcIn": 930,
+        "srcOut": 1380,
+        "enabled": true,
+        "audio": {
+          "enabled": true,
+          "gainDb": -3,
+          "fadeIn": 0,
+          "fadeOut": 48000,
+          "fadeCurve": "equalPower",
+          "envelope": []
+        }
+      }
+    ],
+    "original": {
+      "muted": false,
+      "gainDb": 0
+    },
+    "audioLanes": [
+      {
+        "id": "lane-1",
+        "name": "A1 音樂",
+        "role": "music",
+        "muted": false,
+        "locked": false,
+        "syncLock": false,
+        "gainDb": 0,
+        "clips": [
+          {
+            "id": "a1",
+            "source": {
+              "type": "audio",
+              "audioId": "a-5f00000000000000"
+            },
+            "start": 48000,
+            "length": 960000,
+            "srcIn": 88200,
+            "enabled": true,
+            "gainDb": -12,
+            "fadeIn": 96000,
+            "fadeOut": 144000,
+            "fadeCurve": "equalPower",
+            "envelope": [
+              {
+                "at": 420000,
+                "db": 0
+              },
+              {
+                "at": 432000,
+                "db": -10
+              },
+              {
+                "at": 624000,
+                "db": -10
+              },
+              {
+                "at": 636000,
+                "db": 0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "audio": {
+      "edgeDeclickMs": 3,
+      "limiter": false
+    }
+  },
+  "audioMedia": [
+    {
+      "id": "a-5f00000000000000",
+      "path": "D:\\music\\bgm.mp3",
+      "name": "bgm.mp3",
+      "fingerprint": "5f00000000000000000000000000000000000000000000000000000000000000",
+      "probe": null,
+      "role": "music",
+      "audio": {
+        "codec": "mp3",
+        "sampleRate": 44100,
+        "channels": 2,
+        "channelLayout": "stereo",
+        "startUs": 25057,
+        "videoStartUs": null,
+        "nSamples": 2646000,
+        "gaps": []
+      }
+    }
+  ]
+}

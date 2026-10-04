@@ -1,0 +1,7 @@
+# Windows x64 與 Linux x86_64 專用；必須用 --index-url https://download.pytorch.org/whl/cu130 安裝（bootstrap 腳本會帶）。
+# cu130 是唯一同時有 torch 2.14 與真 sm_120 SASS 的 index（cu128 只到 2.11）；它只有 win_amd64 與 manylinux_2_28 wheel。
+# macOS 改裝 requirements-torch-macos.txt（PyPI、MPS）。刻意不加 sys_platform 標記：在 macOS 誤用這個檔要「大聲裝不起來」，
+# 而不是被標記跳過、再讓 accelerate 從 PyPI 自己解出一個沒釘版的 torch。
+# 不要加 torchaudio（cu130 停在 2.11，會把 torch 降版）、xformers、flash-attn（會重解 torch 成 CPU 版）。
+torch==2.14.0+cu130
+torchvision==0.29.0+cu130

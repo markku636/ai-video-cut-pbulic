@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "app": "ai-video-cut",
+  "createdAt": "2026-09-16T00:00:00.000Z",
+  "updatedAt": "2026-09-16T00:00:00.000Z",
+  "media": [
+    { "id": "m1", "path": "x.webm", "name": "x.webm", "fingerprint": "", "probe": null,
+      "proxy": { "fps": { "num": 30, "den": 1 }, "frames": 100, "width": 1280, "height": 720, "scale": 1, "version": 1 } }
+  ],
+  "activeMediaId": "ghost",
+  "profile": "cards",
+  "futureTopLevelKey": { "keep": "me" },
+  "shots": {
+    "m1": [
+      { "id": "s1", "startFrame": 0, "endFrame": 100, "kind": "close", "source": "auto", "futureShotKey": 7 },
+      { "id": "s-bad", "startFrame": 50, "endFrame": 10, "kind": "close", "source": "auto" },
+      { "id": "s-nan", "startFrame": "abc", "endFrame": 10, "kind": "close", "source": "auto" }
+    ]
+  },
+  "tracks": {
+    "m1": [
+      {
+        "id": "t1", "shotId": "s1", "label": "P1", "kind": "planar", "slotId": "no-such-slot",
+        "referenceFrame": 1e309,
+        "trackingRegion": { "p": [[0, 0], [10, 10], [10, 0], [0, 10]] },
+        "keyframes": [
+          { "frame": 5, "quad": { "p": [[0, 0], [10, 0], [10, 10], [0, 10]] }, "source": "detector" },
+          { "frame": "abc", "quad": { "p": [[0, 0], [10, 0], [10, 10], [0, 10]] }, "source": "user" },
+          { "frame": 500, "quad": { "p": [[0, 0], [10, 0], [10, 10], [0, 10]] }, "source": "user" },
+          { "frame": 6, "quad": { "p": [[0, 0], [10, 10], [10, 0], [0, 10]] }, "source": "user" },
+          { "frame": 7, "quad": { "p": [[0, 0], [10, 0], [10, 10]] }, "source": "user" },
+          { "frame": 8, "quad": { "p": [[0, 0], [10, 0], [10, 10], [0, 10]] }, "source": "robot", "lockedCorners": [true, false] }
+        ],
+        "prompts": [
+          { "frame": 5, "points": [{ "x": 1, "y": 2, "label": 1 }, { "x": 3, "y": 4, "label": 2 }, { "x": "nope", "y": 4, "label": 0 }] },
+          { "frame": 5, "points": [{ "x": 1, "y": 2, "label": 7 }] },
+          { "frame": -1, "points": [{ "x": 1, "y": 2, "label": 1 }] }
+        ],
+        "adjust": { "points": [{ "id": "rp1", "frame": 5, "cornerIndex": 9, "xy": [1, 2], "locked": false, "primaryFrame": 5 }], "enabled": true },
+        "options": { "method": "magic", "motionModel": "perspective", "smoothing": 5, "templateCard": "ZZ" },
+        "insert": { "macro": "bogus", "motionBlur": { "shutterAngle": 180, "shutterPhase": "centered", "samples": 0 } },
+        "regionPolicy": "everything",
+        "stale": "yes",
+        "futureTrackKey": [1, 2, 3]
+      },
+      { "shotId": "s1", "label": "no id" }
+    ]
+  },
+  "cardSlots": {
+    "m1": [
+      { "id": "slot-p1", "name": "Player1", "round": 0, "original": { "card": "8H", "confidence": 0.93, "method": "ncc" }, "target": "ZZ" },
+      { "id": "slot-p2", "name": "Player2", "round": -3, "original": { "card": "XX", "confidence": 9, "method": "guess" }, "target": "TS" },
+      { "name": "no id" }
+    ]
+  },
+  "deck": { "styleId": "demo-deck", "source": "pirated" },
+  "insertDefaults": { "macro": "standard" },
+  "exportDefaults": { "codec": "libvpx-vp9", "quality": 24, "audio": "copy", "trackData": { "format": "fcpxml" } }
+}

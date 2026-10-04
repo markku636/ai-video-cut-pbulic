@@ -1,0 +1,2681 @@
+{
+  "version": 1,
+  "description": "序列對應表的 TS（src/sequence/map.ts）／Python（aivc/sequence/model.py）共用期望值；設計 docs/editor-m2-design.md §3.1、§3.3、§7.1。期望值由 Fraction 暴力算出，改公式要兩邊一起改。",
+  "conventions": {
+    "samplesOfFrame": "S(t) = floor(t * 48000 * fps.den / fps.num)，一律從絕對 t 算、不累加",
+    "placed": "V1 磁吸：t0 = 前面所有項目長度和；clip 長 = srcOut - srcIn、gap 長 = length；s0 = S(t0)、s1 = S(t1)；Σ(s1-s0) = S(T)",
+    "frames": "itemId = 覆蓋 t 的項目（gap 或 clip，含停用）；itemK = clip 的來源幀 srcIn + (t - t0)（gap 為 null）；clipId/k = 渲染用對應（gap 或停用片段為 null＝黑畫面）；t < 0 或 t >= T 全部 null",
+    "videoAbsUs": "videoStartUs + roundHalfUp(k * 1e6 * fps.den / fps.num)",
+    "audioAbsUs": "startUs + roundHalfUp(srcIn * 1e6 / sampleRate)；srcIn 可為負",
+    "roundHalfUp": "同 JS Math.round：x.5 一律往 +∞（62.5 → 63、-62.5 → -62）；Python 的 round() 是銀行家捨入，不能直接用",
+    "isUntouched": "sequence 為 null；或只有一個 clip、enabled、srcIn=0、srcOut=media[mediaId].frames（媒體或幀數未知 → false）、audio.enabled 且 gainDb=0、fadeIn=0、fadeOut=0、envelope 空、沒有 detachedTo（fadeCurve 不看）、original 未靜音且 gainDb=0、所有 audioLanes 的 clips 都是空的（軌道本身的 muted/gainDb 與 sequence.audio 不看）"
+  },
+  "cases": [
+    {
+      "name": "30-two-clips-music",
+      "note": "設計 §7.4：c1 k 60..360、c2 k 930..1380；T=750、S(T)=1 200 000",
+      "sequence": {
+        "id": "seq-1",
+        "name": "map-case",
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "width": 1280,
+        "height": 720,
+        "sampleRate": 48000,
+        "video": [
+          {
+            "kind": "clip",
+            "id": "c1",
+            "mediaId": "m1",
+            "srcIn": 60,
+            "srcOut": 360,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "c2",
+            "mediaId": "m1",
+            "srcIn": 930,
+            "srcOut": 1380,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": -3,
+              "fadeIn": 0,
+              "fadeOut": 48000,
+              "fadeCurve": "equalPower",
+              "envelope": []
+            }
+          }
+        ],
+        "original": {
+          "muted": false,
+          "gainDb": 0
+        },
+        "audioLanes": [],
+        "audio": {
+          "edgeDeclickMs": 3,
+          "limiter": false
+        }
+      },
+      "expect": {
+        "durationFrames": 750,
+        "totalSamples": 1200000,
+        "placed": [
+          {
+            "id": "c1",
+            "kind": "clip",
+            "t0": 0,
+            "t1": 300,
+            "s0": 0,
+            "s1": 480000
+          },
+          {
+            "id": "c2",
+            "kind": "clip",
+            "t0": 300,
+            "t1": 750,
+            "s0": 480000,
+            "s1": 1200000
+          }
+        ],
+        "frames": [
+          {
+            "t": -1,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 0,
+            "itemId": "c1",
+            "itemK": 60,
+            "clipId": "c1",
+            "k": 60
+          },
+          {
+            "t": 1,
+            "itemId": "c1",
+            "itemK": 61,
+            "clipId": "c1",
+            "k": 61
+          },
+          {
+            "t": 150,
+            "itemId": "c1",
+            "itemK": 210,
+            "clipId": "c1",
+            "k": 210
+          },
+          {
+            "t": 299,
+            "itemId": "c1",
+            "itemK": 359,
+            "clipId": "c1",
+            "k": 359
+          },
+          {
+            "t": 300,
+            "itemId": "c2",
+            "itemK": 930,
+            "clipId": "c2",
+            "k": 930
+          },
+          {
+            "t": 301,
+            "itemId": "c2",
+            "itemK": 931,
+            "clipId": "c2",
+            "k": 931
+          },
+          {
+            "t": 525,
+            "itemId": "c2",
+            "itemK": 1155,
+            "clipId": "c2",
+            "k": 1155
+          },
+          {
+            "t": 749,
+            "itemId": "c2",
+            "itemK": 1379,
+            "clipId": "c2",
+            "k": 1379
+          },
+          {
+            "t": 750,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 755,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          }
+        ],
+        "samplesOfFrame": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1600
+          ],
+          [
+            2,
+            3200
+          ],
+          [
+            3,
+            4800
+          ],
+          [
+            299,
+            478400
+          ],
+          [
+            300,
+            480000
+          ],
+          [
+            750,
+            1200000
+          ],
+          [
+            751,
+            1201600
+          ],
+          [
+            1001,
+            1601600
+          ],
+          [
+            3000,
+            4800000
+          ],
+          [
+            30000,
+            48000000
+          ],
+          [
+            1000000,
+            1600000000
+          ],
+          [
+            108000000,
+            172800000000
+          ]
+        ]
+      }
+    },
+    {
+      "name": "29.97-two-clips",
+      "note": "設計 §7.4 的 29.97 變體：S(300)=480 480、S(750)=1 201 200，兩片段剛好鋪滿",
+      "sequence": {
+        "id": "seq-1",
+        "name": "map-case",
+        "fps": {
+          "num": 30000,
+          "den": 1001
+        },
+        "width": 1280,
+        "height": 720,
+        "sampleRate": 48000,
+        "video": [
+          {
+            "kind": "clip",
+            "id": "c1",
+            "mediaId": "m1",
+            "srcIn": 60,
+            "srcOut": 360,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "c2",
+            "mediaId": "m1",
+            "srcIn": 930,
+            "srcOut": 1380,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          }
+        ],
+        "original": {
+          "muted": false,
+          "gainDb": 0
+        },
+        "audioLanes": [],
+        "audio": {
+          "edgeDeclickMs": 3,
+          "limiter": false
+        }
+      },
+      "expect": {
+        "durationFrames": 750,
+        "totalSamples": 1201200,
+        "placed": [
+          {
+            "id": "c1",
+            "kind": "clip",
+            "t0": 0,
+            "t1": 300,
+            "s0": 0,
+            "s1": 480480
+          },
+          {
+            "id": "c2",
+            "kind": "clip",
+            "t0": 300,
+            "t1": 750,
+            "s0": 480480,
+            "s1": 1201200
+          }
+        ],
+        "frames": [
+          {
+            "t": -1,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 0,
+            "itemId": "c1",
+            "itemK": 60,
+            "clipId": "c1",
+            "k": 60
+          },
+          {
+            "t": 1,
+            "itemId": "c1",
+            "itemK": 61,
+            "clipId": "c1",
+            "k": 61
+          },
+          {
+            "t": 150,
+            "itemId": "c1",
+            "itemK": 210,
+            "clipId": "c1",
+            "k": 210
+          },
+          {
+            "t": 299,
+            "itemId": "c1",
+            "itemK": 359,
+            "clipId": "c1",
+            "k": 359
+          },
+          {
+            "t": 300,
+            "itemId": "c2",
+            "itemK": 930,
+            "clipId": "c2",
+            "k": 930
+          },
+          {
+            "t": 301,
+            "itemId": "c2",
+            "itemK": 931,
+            "clipId": "c2",
+            "k": 931
+          },
+          {
+            "t": 525,
+            "itemId": "c2",
+            "itemK": 1155,
+            "clipId": "c2",
+            "k": 1155
+          },
+          {
+            "t": 749,
+            "itemId": "c2",
+            "itemK": 1379,
+            "clipId": "c2",
+            "k": 1379
+          },
+          {
+            "t": 750,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 755,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          }
+        ],
+        "samplesOfFrame": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1601
+          ],
+          [
+            2,
+            3203
+          ],
+          [
+            3,
+            4804
+          ],
+          [
+            299,
+            478878
+          ],
+          [
+            300,
+            480480
+          ],
+          [
+            750,
+            1201200
+          ],
+          [
+            751,
+            1202801
+          ],
+          [
+            1001,
+            1603201
+          ],
+          [
+            3000,
+            4804800
+          ],
+          [
+            30000,
+            48048000
+          ],
+          [
+            1000000,
+            1601600000
+          ],
+          [
+            108000000,
+            172972800000
+          ]
+        ]
+      }
+    },
+    {
+      "name": "29.97-odd-lengths-tiling",
+      "note": "1601.6 樣本／幀：各片段自己 round 會留縫；從絕對 t 算 floor 才會 Σ片段長 = S(T)",
+      "sequence": {
+        "id": "seq-1",
+        "name": "map-case",
+        "fps": {
+          "num": 30000,
+          "den": 1001
+        },
+        "width": 1280,
+        "height": 720,
+        "sampleRate": 48000,
+        "video": [
+          {
+            "kind": "clip",
+            "id": "a",
+            "mediaId": "m1",
+            "srcIn": 0,
+            "srcOut": 1,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "gap",
+            "id": "g1",
+            "length": 2
+          },
+          {
+            "kind": "clip",
+            "id": "b",
+            "mediaId": "m1",
+            "srcIn": 10,
+            "srcOut": 13,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "c",
+            "mediaId": "m1",
+            "srcIn": 3,
+            "srcOut": 8,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "gap",
+            "id": "g2",
+            "length": 7
+          },
+          {
+            "kind": "clip",
+            "id": "d",
+            "mediaId": "m1",
+            "srcIn": 100,
+            "srcOut": 111,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "e",
+            "mediaId": "m1",
+            "srcIn": 50,
+            "srcOut": 63,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "f",
+            "mediaId": "m1",
+            "srcIn": 1,
+            "srcOut": 2,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          }
+        ],
+        "original": {
+          "muted": false,
+          "gainDb": 0
+        },
+        "audioLanes": [],
+        "audio": {
+          "edgeDeclickMs": 3,
+          "limiter": false
+        }
+      },
+      "expect": {
+        "durationFrames": 43,
+        "totalSamples": 68868,
+        "placed": [
+          {
+            "id": "a",
+            "kind": "clip",
+            "t0": 0,
+            "t1": 1,
+            "s0": 0,
+            "s1": 1601
+          },
+          {
+            "id": "g1",
+            "kind": "gap",
+            "t0": 1,
+            "t1": 3,
+            "s0": 1601,
+            "s1": 4804
+          },
+          {
+            "id": "b",
+            "kind": "clip",
+            "t0": 3,
+            "t1": 6,
+            "s0": 4804,
+            "s1": 9609
+          },
+          {
+            "id": "c",
+            "kind": "clip",
+            "t0": 6,
+            "t1": 11,
+            "s0": 9609,
+            "s1": 17617
+          },
+          {
+            "id": "g2",
+            "kind": "gap",
+            "t0": 11,
+            "t1": 18,
+            "s0": 17617,
+            "s1": 28828
+          },
+          {
+            "id": "d",
+            "kind": "clip",
+            "t0": 18,
+            "t1": 29,
+            "s0": 28828,
+            "s1": 46446
+          },
+          {
+            "id": "e",
+            "kind": "clip",
+            "t0": 29,
+            "t1": 42,
+            "s0": 46446,
+            "s1": 67267
+          },
+          {
+            "id": "f",
+            "kind": "clip",
+            "t0": 42,
+            "t1": 43,
+            "s0": 67267,
+            "s1": 68868
+          }
+        ],
+        "frames": [
+          {
+            "t": -1,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 0,
+            "itemId": "a",
+            "itemK": 0,
+            "clipId": "a",
+            "k": 0
+          },
+          {
+            "t": 1,
+            "itemId": "g1",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 2,
+            "itemId": "g1",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 3,
+            "itemId": "b",
+            "itemK": 10,
+            "clipId": "b",
+            "k": 10
+          },
+          {
+            "t": 4,
+            "itemId": "b",
+            "itemK": 11,
+            "clipId": "b",
+            "k": 11
+          },
+          {
+            "t": 5,
+            "itemId": "b",
+            "itemK": 12,
+            "clipId": "b",
+            "k": 12
+          },
+          {
+            "t": 6,
+            "itemId": "c",
+            "itemK": 3,
+            "clipId": "c",
+            "k": 3
+          },
+          {
+            "t": 7,
+            "itemId": "c",
+            "itemK": 4,
+            "clipId": "c",
+            "k": 4
+          },
+          {
+            "t": 8,
+            "itemId": "c",
+            "itemK": 5,
+            "clipId": "c",
+            "k": 5
+          },
+          {
+            "t": 10,
+            "itemId": "c",
+            "itemK": 7,
+            "clipId": "c",
+            "k": 7
+          },
+          {
+            "t": 11,
+            "itemId": "g2",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 12,
+            "itemId": "g2",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 14,
+            "itemId": "g2",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 17,
+            "itemId": "g2",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 18,
+            "itemId": "d",
+            "itemK": 100,
+            "clipId": "d",
+            "k": 100
+          },
+          {
+            "t": 19,
+            "itemId": "d",
+            "itemK": 101,
+            "clipId": "d",
+            "k": 101
+          },
+          {
+            "t": 23,
+            "itemId": "d",
+            "itemK": 105,
+            "clipId": "d",
+            "k": 105
+          },
+          {
+            "t": 28,
+            "itemId": "d",
+            "itemK": 110,
+            "clipId": "d",
+            "k": 110
+          },
+          {
+            "t": 29,
+            "itemId": "e",
+            "itemK": 50,
+            "clipId": "e",
+            "k": 50
+          },
+          {
+            "t": 30,
+            "itemId": "e",
+            "itemK": 51,
+            "clipId": "e",
+            "k": 51
+          },
+          {
+            "t": 35,
+            "itemId": "e",
+            "itemK": 56,
+            "clipId": "e",
+            "k": 56
+          },
+          {
+            "t": 41,
+            "itemId": "e",
+            "itemK": 62,
+            "clipId": "e",
+            "k": 62
+          },
+          {
+            "t": 42,
+            "itemId": "f",
+            "itemK": 1,
+            "clipId": "f",
+            "k": 1
+          },
+          {
+            "t": 43,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 48,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          }
+        ],
+        "samplesOfFrame": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1601
+          ],
+          [
+            2,
+            3203
+          ],
+          [
+            3,
+            4804
+          ],
+          [
+            43,
+            68868
+          ],
+          [
+            44,
+            70470
+          ],
+          [
+            299,
+            478878
+          ],
+          [
+            300,
+            480480
+          ],
+          [
+            750,
+            1201200
+          ],
+          [
+            1001,
+            1603201
+          ],
+          [
+            3000,
+            4804800
+          ],
+          [
+            30000,
+            48048000
+          ],
+          [
+            1000000,
+            1601600000
+          ],
+          [
+            108000000,
+            172972800000
+          ]
+        ]
+      }
+    },
+    {
+      "name": "23.976-gap-disabled-reversed-two-media",
+      "note": "空白、停用片段（itemK 有值但 clipId/k 為 null＝輸出黑畫面）、倒序（後段 srcIn 比前段小）、兩支媒體",
+      "sequence": {
+        "id": "seq-1",
+        "name": "map-case",
+        "fps": {
+          "num": 24000,
+          "den": 1001
+        },
+        "width": 1280,
+        "height": 720,
+        "sampleRate": 48000,
+        "video": [
+          {
+            "kind": "clip",
+            "id": "c1",
+            "mediaId": "m1",
+            "srcIn": 500,
+            "srcOut": 548,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "gap",
+            "id": "g1",
+            "length": 37
+          },
+          {
+            "kind": "clip",
+            "id": "c2",
+            "mediaId": "m1",
+            "srcIn": 0,
+            "srcOut": 24,
+            "enabled": false,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "c3",
+            "mediaId": "m2",
+            "srcIn": 10,
+            "srcOut": 71,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          }
+        ],
+        "original": {
+          "muted": false,
+          "gainDb": 0
+        },
+        "audioLanes": [],
+        "audio": {
+          "edgeDeclickMs": 3,
+          "limiter": false
+        }
+      },
+      "expect": {
+        "durationFrames": 170,
+        "totalSamples": 340340,
+        "placed": [
+          {
+            "id": "c1",
+            "kind": "clip",
+            "t0": 0,
+            "t1": 48,
+            "s0": 0,
+            "s1": 96096
+          },
+          {
+            "id": "g1",
+            "kind": "gap",
+            "t0": 48,
+            "t1": 85,
+            "s0": 96096,
+            "s1": 170170
+          },
+          {
+            "id": "c2",
+            "kind": "clip",
+            "t0": 85,
+            "t1": 109,
+            "s0": 170170,
+            "s1": 218218
+          },
+          {
+            "id": "c3",
+            "kind": "clip",
+            "t0": 109,
+            "t1": 170,
+            "s0": 218218,
+            "s1": 340340
+          }
+        ],
+        "frames": [
+          {
+            "t": -1,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 0,
+            "itemId": "c1",
+            "itemK": 500,
+            "clipId": "c1",
+            "k": 500
+          },
+          {
+            "t": 1,
+            "itemId": "c1",
+            "itemK": 501,
+            "clipId": "c1",
+            "k": 501
+          },
+          {
+            "t": 24,
+            "itemId": "c1",
+            "itemK": 524,
+            "clipId": "c1",
+            "k": 524
+          },
+          {
+            "t": 47,
+            "itemId": "c1",
+            "itemK": 547,
+            "clipId": "c1",
+            "k": 547
+          },
+          {
+            "t": 48,
+            "itemId": "g1",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 49,
+            "itemId": "g1",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 66,
+            "itemId": "g1",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 84,
+            "itemId": "g1",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 85,
+            "itemId": "c2",
+            "itemK": 0,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 86,
+            "itemId": "c2",
+            "itemK": 1,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 97,
+            "itemId": "c2",
+            "itemK": 12,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 108,
+            "itemId": "c2",
+            "itemK": 23,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 109,
+            "itemId": "c3",
+            "itemK": 10,
+            "clipId": "c3",
+            "k": 10
+          },
+          {
+            "t": 110,
+            "itemId": "c3",
+            "itemK": 11,
+            "clipId": "c3",
+            "k": 11
+          },
+          {
+            "t": 139,
+            "itemId": "c3",
+            "itemK": 40,
+            "clipId": "c3",
+            "k": 40
+          },
+          {
+            "t": 169,
+            "itemId": "c3",
+            "itemK": 70,
+            "clipId": "c3",
+            "k": 70
+          },
+          {
+            "t": 170,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 175,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          }
+        ],
+        "samplesOfFrame": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2002
+          ],
+          [
+            2,
+            4004
+          ],
+          [
+            3,
+            6006
+          ],
+          [
+            170,
+            340340
+          ],
+          [
+            171,
+            342342
+          ],
+          [
+            299,
+            598598
+          ],
+          [
+            300,
+            600600
+          ],
+          [
+            750,
+            1501500
+          ],
+          [
+            1001,
+            2004002
+          ],
+          [
+            3000,
+            6006000
+          ],
+          [
+            30000,
+            60060000
+          ],
+          [
+            1000000,
+            2002000000
+          ],
+          [
+            108000000,
+            216216000000
+          ]
+        ]
+      }
+    },
+    {
+      "name": "25-same-source-frame-twice",
+      "note": "開頭空白；k=105 在序列出現三次（c1 尾段、c2 頭、1 幀片段 c3）",
+      "sequence": {
+        "id": "seq-1",
+        "name": "map-case",
+        "fps": {
+          "num": 25,
+          "den": 1
+        },
+        "width": 1280,
+        "height": 720,
+        "sampleRate": 48000,
+        "video": [
+          {
+            "kind": "gap",
+            "id": "g0",
+            "length": 3
+          },
+          {
+            "kind": "clip",
+            "id": "c1",
+            "mediaId": "m1",
+            "srcIn": 100,
+            "srcOut": 110,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "c2",
+            "mediaId": "m1",
+            "srcIn": 105,
+            "srcOut": 120,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          },
+          {
+            "kind": "clip",
+            "id": "c3",
+            "mediaId": "m1",
+            "srcIn": 105,
+            "srcOut": 106,
+            "enabled": true,
+            "audio": {
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          }
+        ],
+        "original": {
+          "muted": false,
+          "gainDb": 0
+        },
+        "audioLanes": [],
+        "audio": {
+          "edgeDeclickMs": 3,
+          "limiter": false
+        }
+      },
+      "expect": {
+        "durationFrames": 29,
+        "totalSamples": 55680,
+        "placed": [
+          {
+            "id": "g0",
+            "kind": "gap",
+            "t0": 0,
+            "t1": 3,
+            "s0": 0,
+            "s1": 5760
+          },
+          {
+            "id": "c1",
+            "kind": "clip",
+            "t0": 3,
+            "t1": 13,
+            "s0": 5760,
+            "s1": 24960
+          },
+          {
+            "id": "c2",
+            "kind": "clip",
+            "t0": 13,
+            "t1": 28,
+            "s0": 24960,
+            "s1": 53760
+          },
+          {
+            "id": "c3",
+            "kind": "clip",
+            "t0": 28,
+            "t1": 29,
+            "s0": 53760,
+            "s1": 55680
+          }
+        ],
+        "frames": [
+          {
+            "t": -1,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 0,
+            "itemId": "g0",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 1,
+            "itemId": "g0",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 2,
+            "itemId": "g0",
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 3,
+            "itemId": "c1",
+            "itemK": 100,
+            "clipId": "c1",
+            "k": 100
+          },
+          {
+            "t": 4,
+            "itemId": "c1",
+            "itemK": 101,
+            "clipId": "c1",
+            "k": 101
+          },
+          {
+            "t": 8,
+            "itemId": "c1",
+            "itemK": 105,
+            "clipId": "c1",
+            "k": 105
+          },
+          {
+            "t": 12,
+            "itemId": "c1",
+            "itemK": 109,
+            "clipId": "c1",
+            "k": 109
+          },
+          {
+            "t": 13,
+            "itemId": "c2",
+            "itemK": 105,
+            "clipId": "c2",
+            "k": 105
+          },
+          {
+            "t": 14,
+            "itemId": "c2",
+            "itemK": 106,
+            "clipId": "c2",
+            "k": 106
+          },
+          {
+            "t": 20,
+            "itemId": "c2",
+            "itemK": 112,
+            "clipId": "c2",
+            "k": 112
+          },
+          {
+            "t": 27,
+            "itemId": "c2",
+            "itemK": 119,
+            "clipId": "c2",
+            "k": 119
+          },
+          {
+            "t": 28,
+            "itemId": "c3",
+            "itemK": 105,
+            "clipId": "c3",
+            "k": 105
+          },
+          {
+            "t": 29,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 34,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          }
+        ],
+        "samplesOfFrame": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1920
+          ],
+          [
+            2,
+            3840
+          ],
+          [
+            3,
+            5760
+          ],
+          [
+            29,
+            55680
+          ],
+          [
+            30,
+            57600
+          ],
+          [
+            299,
+            574080
+          ],
+          [
+            300,
+            576000
+          ],
+          [
+            750,
+            1440000
+          ],
+          [
+            1001,
+            1921920
+          ],
+          [
+            3000,
+            5760000
+          ],
+          [
+            30000,
+            57600000
+          ],
+          [
+            1000000,
+            1920000000
+          ],
+          [
+            108000000,
+            207360000000
+          ]
+        ]
+      }
+    },
+    {
+      "name": "30-empty",
+      "note": "沒有任何項目：T=0，任何 t 都對不到",
+      "sequence": {
+        "id": "seq-1",
+        "name": "map-case",
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "width": 1280,
+        "height": 720,
+        "sampleRate": 48000,
+        "video": [],
+        "original": {
+          "muted": false,
+          "gainDb": 0
+        },
+        "audioLanes": [],
+        "audio": {
+          "edgeDeclickMs": 3,
+          "limiter": false
+        }
+      },
+      "expect": {
+        "durationFrames": 0,
+        "totalSamples": 0,
+        "placed": [],
+        "frames": [
+          {
+            "t": -1,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 0,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          },
+          {
+            "t": 5,
+            "itemId": null,
+            "itemK": null,
+            "clipId": null,
+            "k": null
+          }
+        ],
+        "samplesOfFrame": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1600
+          ],
+          [
+            2,
+            3200
+          ],
+          [
+            3,
+            4800
+          ],
+          [
+            299,
+            478400
+          ],
+          [
+            300,
+            480000
+          ],
+          [
+            750,
+            1200000
+          ],
+          [
+            1001,
+            1601600
+          ],
+          [
+            3000,
+            4800000
+          ],
+          [
+            30000,
+            48000000
+          ],
+          [
+            1000000,
+            1600000000
+          ],
+          [
+            108000000,
+            172800000000
+          ]
+        ]
+      }
+    }
+  ],
+  "absUs": {
+    "video": [
+      {
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "videoStartUs": 0,
+        "k": 60,
+        "us": 2000000
+      },
+      {
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "videoStartUs": 0,
+        "k": 360,
+        "us": 12000000
+      },
+      {
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "videoStartUs": 0,
+        "k": 1,
+        "us": 33333
+      },
+      {
+        "fps": {
+          "num": 30000,
+          "den": 1001
+        },
+        "videoStartUs": 0,
+        "k": 60,
+        "us": 2002000
+      },
+      {
+        "fps": {
+          "num": 30000,
+          "den": 1001
+        },
+        "videoStartUs": 0,
+        "k": 1,
+        "us": 33367
+      },
+      {
+        "fps": {
+          "num": 30000,
+          "den": 1001
+        },
+        "videoStartUs": 0,
+        "k": 1380,
+        "us": 46046000
+      },
+      {
+        "fps": {
+          "num": 24000,
+          "den": 1001
+        },
+        "videoStartUs": 0,
+        "k": 1,
+        "us": 41708
+      },
+      {
+        "fps": {
+          "num": 24000,
+          "den": 1001
+        },
+        "videoStartUs": 0,
+        "k": 3,
+        "us": 125125
+      },
+      {
+        "fps": {
+          "num": 25,
+          "den": 1
+        },
+        "videoStartUs": 0,
+        "k": 7,
+        "us": 280000
+      },
+      {
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "videoStartUs": 6500,
+        "k": 0,
+        "us": 6500
+      },
+      {
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "videoStartUs": 6500,
+        "k": 2,
+        "us": 73167
+      },
+      {
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "videoStartUs": -7000,
+        "k": 1,
+        "us": 26333
+      },
+      {
+        "fps": {
+          "num": 30000,
+          "den": 1001
+        },
+        "videoStartUs": 1000000,
+        "k": 107892,
+        "us": 3600996400
+      }
+    ],
+    "audio": [
+      {
+        "startUs": 25057,
+        "sampleRate": 44100,
+        "srcIn": 88200,
+        "us": 2025057
+      },
+      {
+        "startUs": 25057,
+        "sampleRate": 44100,
+        "srcIn": 0,
+        "us": 25057
+      },
+      {
+        "startUs": 0,
+        "sampleRate": 48000,
+        "srcIn": 3,
+        "us": 63
+      },
+      {
+        "startUs": 0,
+        "sampleRate": 48000,
+        "srcIn": -3,
+        "us": -62
+      },
+      {
+        "startUs": 0,
+        "sampleRate": 48000,
+        "srcIn": 1,
+        "us": 21
+      },
+      {
+        "startUs": 0,
+        "sampleRate": 44100,
+        "srcIn": 1,
+        "us": 23
+      },
+      {
+        "startUs": 0,
+        "sampleRate": 44100,
+        "srcIn": -1,
+        "us": -23
+      },
+      {
+        "startUs": 6500,
+        "sampleRate": 48000,
+        "srcIn": -312,
+        "us": 0
+      },
+      {
+        "startUs": -7000,
+        "sampleRate": 48000,
+        "srcIn": 336,
+        "us": 0
+      },
+      {
+        "startUs": 0,
+        "sampleRate": 32000,
+        "srcIn": 2,
+        "us": 63
+      },
+      {
+        "startUs": 0,
+        "sampleRate": 96000,
+        "srcIn": 6,
+        "us": 63
+      }
+    ]
+  },
+  "untouched": {
+    "media": {
+      "m1": {
+        "frames": 1797
+      },
+      "m2": {
+        "frames": 600
+      }
+    },
+    "cases": [
+      {
+        "name": "implicit-null",
+        "sequence": null,
+        "expect": true
+      },
+      {
+        "name": "materialized-full-clip",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": true
+      },
+      {
+        "name": "split-then-joined-by-value",
+        "note": "比的是值不是 null：B 切一刀再合併，回到 copy 路徑",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c9",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": true
+      },
+      {
+        "name": "empty-lanes-ok",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [
+            {
+              "id": "lane-1",
+              "name": "A1 音樂",
+              "role": "music",
+              "muted": true,
+              "locked": false,
+              "syncLock": false,
+              "gainDb": -6,
+              "clips": []
+            }
+          ],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": true
+      },
+      {
+        "name": "fade-curve-without-fades",
+        "note": "淡化長度都是 0 時曲線不影響輸出",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "equalPower",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": true
+      },
+      {
+        "name": "limiter-and-declick-ignored",
+        "note": "§7.1 的條件不含 sequence.audio；單一整段片段沒有接縫，限幅器也不在 copy 路徑上",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 10,
+            "limiter": true
+          }
+        },
+        "expect": true
+      },
+      {
+        "name": "trimmed-in",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 1,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "trimmed-out",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1796,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "split",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 900,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            },
+            {
+              "kind": "clip",
+              "id": "c2",
+              "mediaId": "m1",
+              "srcIn": 900,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "disabled",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": false,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "gap-only",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "gap",
+              "id": "g1",
+              "length": 1797
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "clip-audio-muted",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": false,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "clip-gain",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": -3,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "clip-fade-in",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 1,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "clip-envelope",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": [
+                  {
+                    "at": 0,
+                    "db": 0
+                  }
+                ]
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "clip-detached",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": false,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": [],
+                "detachedTo": "a1"
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "original-muted",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": true,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "original-gain",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 1.5
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "lane-has-clip",
+        "note": "軌道靜音也不行：有片段就走混音（片段可能被取消靜音，行為要單純）",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m1",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [
+            {
+              "id": "lane-1",
+              "name": "A1 音樂",
+              "role": "music",
+              "muted": true,
+              "locked": false,
+              "syncLock": false,
+              "gainDb": 0,
+              "clips": [
+                {
+                  "id": "a1",
+                  "source": {
+                    "type": "audio",
+                    "audioId": "a-5f00000000000000"
+                  },
+                  "start": 0,
+                  "length": 48000,
+                  "srcIn": 0,
+                  "enabled": true,
+                  "gainDb": 0,
+                  "fadeIn": 0,
+                  "fadeOut": 0,
+                  "fadeCurve": "linear",
+                  "envelope": []
+                }
+              ]
+            }
+          ],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "unknown-proxy-frames",
+        "note": "媒體沒有 proxy 幀數＝無法證明是整段 → 保守地不 copy",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m3",
+              "srcIn": 0,
+              "srcOut": 1797,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": false
+      },
+      {
+        "name": "other-media-full",
+        "sequence": {
+          "id": "seq-1",
+          "name": "map-case",
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "width": 1280,
+          "height": 720,
+          "sampleRate": 48000,
+          "video": [
+            {
+              "kind": "clip",
+              "id": "c1",
+              "mediaId": "m2",
+              "srcIn": 0,
+              "srcOut": 600,
+              "enabled": true,
+              "audio": {
+                "enabled": true,
+                "gainDb": 0,
+                "fadeIn": 0,
+                "fadeOut": 0,
+                "fadeCurve": "linear",
+                "envelope": []
+              }
+            }
+          ],
+          "original": {
+            "muted": false,
+            "gainDb": 0
+          },
+          "audioLanes": [],
+          "audio": {
+            "edgeDeclickMs": 3,
+            "limiter": false
+          }
+        },
+        "expect": true
+      }
+    ]
+  }
+}

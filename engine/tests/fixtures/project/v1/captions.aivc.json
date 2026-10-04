@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "app": "ai-video-cut",
+  "createdAt": "2026-09-16T00:00:00.000Z",
+  "updatedAt": "2026-09-16T00:00:00.000Z",
+  "media": [
+    {
+      "id": "m1",
+      "path": "D:\\media\\sample_clip1.webm",
+      "name": "sample_clip1.webm",
+      "fingerprint": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "probe": {
+        "container": "matroska,webm",
+        "video": {
+          "width": 1280,
+          "height": 720
+        }
+      },
+      "proxy": {
+        "fps": {
+          "num": 30,
+          "den": 1
+        },
+        "frames": 1797,
+        "width": 1280,
+        "height": 720,
+        "scale": 1.0,
+        "version": 1
+      }
+    }
+  ],
+  "activeMediaId": "m1",
+  "profile": "generic",
+  "shots": {
+    "m1": [
+      {
+        "id": "s1",
+        "startFrame": 0,
+        "endFrame": 60,
+        "kind": "close",
+        "source": "auto"
+      },
+      {
+        "id": "s2",
+        "startFrame": 60,
+        "endFrame": 927,
+        "kind": "wide",
+        "source": "auto"
+      },
+      {
+        "id": "s3",
+        "startFrame": 927,
+        "endFrame": 1359,
+        "kind": "close",
+        "source": "auto"
+      },
+      {
+        "id": "s4",
+        "startFrame": 1359,
+        "endFrame": 1797,
+        "kind": "wide",
+        "source": "user"
+      }
+    ]
+  },
+  "tracks": {
+    "m1": []
+  },
+  "cardSlots": {
+    "m1": []
+  },
+  "deck": {
+    "styleId": "demo-deck",
+    "source": "builtin"
+  },
+  "insertDefaults": {
+    "macro": "standard",
+    "opacity": 100.0,
+    "applyMix": 100.0,
+    "edge": {
+      "choke": 0.6,
+      "softness": 0.8,
+      "falloff": "linear"
+    },
+    "occlusion": {
+      "dilate": 1.0,
+      "feather": 1.2
+    },
+    "motionBlur": {
+      "shutterAngle": 180.0,
+      "shutterPhase": "centered",
+      "samples": "auto"
+    },
+    "resample": {
+      "kernel": "lanczos3",
+      "clamp": true
+    },
+    "relight": {
+      "keepHighlights": 100.0,
+      "sheenLock": "plate"
+    },
+    "grain": {
+      "mode": "measured",
+      "amount": 100.0
+    }
+  },
+  "exportDefaults": {
+    "codec": "libvpx-vp9",
+    "quality": 24.0,
+    "audio": "copy",
+    "trackData": {
+      "format": "nuke",
+      "flavour": "cornerpin",
+      "baked": true,
+      "frameOffset": 1
+    }
+  },
+  "captions": {
+    "m1": {
+      "engineFutureKey": {
+        "x": 1
+      },
+      "enabled": true,
+      "language": "zh-TW",
+      "source": {
+        "backend": "faster-whisper",
+        "model": "large-v3-turbo",
+        "device": "cuda",
+        "computeType": "float16",
+        "asrLanguage": "zh",
+        "detected": "zh",
+        "languageProb": 1,
+        "asrPath": "C:\\cache\\media\\55f70e1af9f556a6\\asr\\7c1ca9876758444d.v1.json",
+        "transcribedAt": "2026-09-17T00:00:00.000Z"
+      },
+      "presetId": "karaoke",
+      "style": {
+        "colors": {
+          "active": "#FFD60A"
+        },
+        "shadow": null,
+        "futureGroup": {
+          "a": 1
+        }
+      },
+      "segmentation": {
+        "mode": "phrase",
+        "maxUnitsPerLine": 12,
+        "maxLines": 2,
+        "maxWords": 3,
+        "minDurationMs": 300,
+        "maxDurationMs": 2000,
+        "gapFrames": 0,
+        "chainGapMs": 300,
+        "lagOutMs": 150,
+        "pauseBreakMs": 300,
+        "snapToShots": false,
+        "cpsWarn": null
+      },
+      "cues": [
+        {
+          "id": "c1",
+          "startFrame": 13,
+          "endFrame": 41,
+          "words": [
+            {
+              "text": "歡迎",
+              "startFrame": 13,
+              "endFrame": 26,
+              "prob": 0.068,
+              "source": "asr"
+            },
+            {
+              "text": "來到",
+              "startFrame": 26,
+              "endFrame": 41,
+              "prob": 0.995,
+              "source": "asr"
+            }
+          ],
+          "speaker": null,
+          "lang": "zh-TW",
+          "flags": [
+            "lowConfidence"
+          ]
+        },
+        {
+          "id": "c2",
+          "startFrame": 41,
+          "endFrame": 57,
+          "words": [
+            {
+              "text": "百",
+              "startFrame": 41,
+              "endFrame": 50,
+              "prob": 0.951,
+              "emphasis": true,
+              "source": "user"
+            },
+            {
+              "text": "家",
+              "startFrame": 50,
+              "endFrame": 57,
+              "prob": 0.915,
+              "source": "asr",
+              "karaokeKey": [
+                1,
+                2
+              ]
+            }
+          ],
+          "lang": "zh-TW",
+          "flags": [
+            "edited"
+          ],
+          "cueFutureKey": "keep"
+        },
+        {
+          "id": "c3",
+          "startFrame": 57,
+          "endFrame": 84,
+          "words": [
+            {
+              "text": "樂",
+              "startFrame": 57,
+              "endFrame": 64,
+              "prob": 0.714,
+              "source": "asr"
+            },
+            {
+              "text": "牌",
+              "startFrame": 64,
+              "endFrame": 71,
+              "prob": 0.83,
+              "source": "asr"
+            },
+            {
+              "text": "局。",
+              "startFrame": 71,
+              "endFrame": 79,
+              "prob": 0.993,
+              "source": "asr"
+            }
+          ],
+          "lang": "zh-TW",
+          "styleOverride": {
+            "colors": {
+              "active": "#22C55E"
+            }
+          }
+        },
+        {
+          "id": "c19",
+          "startFrame": 431,
+          "endFrame": 463,
+          "words": [
+            {
+              "text": "the",
+              "startFrame": 431,
+              "endFrame": 434,
+              "prob": 0.987,
+              "source": "asr"
+            },
+            {
+              "text": "Magic",
+              "startFrame": 434,
+              "endFrame": 451,
+              "prob": 0.624,
+              "source": "asr"
+            },
+            {
+              "text": "table.",
+              "startFrame": 451,
+              "endFrame": 458,
+              "prob": 0.742,
+              "source": "asr"
+            }
+          ],
+          "lang": "en",
+          "hidden": true
+        }
+      ]
+    }
+  }
+}

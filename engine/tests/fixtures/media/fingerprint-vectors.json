@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "layout": "blake3(size_le_u64 || head[min(4MiB,size)] || tail[last 4MiB, only if size > 4MiB])",
+  "generator": "byte[i] = (i*7+3) & 0xFF",
+  "source": "ai-music-cut/src-tauri/src/ffmpeg.rs::fingerprint (lines 238-254); python aivc.media.fingerprint",
+  "vectors": [
+    {
+      "size": 0,
+      "blake3_hex": "71e0a99173564931c0b8acc52d2685a8e39c64dc52e3d02390fdac2a12b155cb",
+      "dir16": "71e0a99173564931"
+    },
+    {
+      "size": 1,
+      "blake3_hex": "2eeb4444993eef390206325d3ab844d5faa29035cc659841aa50825ee6e78c5d",
+      "dir16": "2eeb4444993eef39"
+    },
+    {
+      "size": 7,
+      "blake3_hex": "96f64d188b578fff1ec2f43b4746eefbae5c5a2852ba7e7c9ebf82a81b9d688d",
+      "dir16": "96f64d188b578fff"
+    },
+    {
+      "size": 10000,
+      "blake3_hex": "2b3ec69918cb5f11bfe90324ef3824326a93864095231c876aead96d053bf282",
+      "dir16": "2b3ec69918cb5f11"
+    },
+    {
+      "size": 4194303,
+      "blake3_hex": "5c272fd5555a70676adb7c37c1bb37caa5aed1513367db2259d16eb15f02db0a",
+      "dir16": "5c272fd5555a7067"
+    },
+    {
+      "size": 4194304,
+      "blake3_hex": "2d4456162c464481c6deaf654f23fe3a15311fc8b653ae75b62c9d92bc3339d7",
+      "dir16": "2d4456162c464481"
+    },
+    {
+      "size": 4194305,
+      "blake3_hex": "a3da15d55b4cd7b31d8c9d4dd98a5c923aa80325b36d8609286bf6bfe4c50d96",
+      "dir16": "a3da15d55b4cd7b3"
+    },
+    {
+      "size": 4194404,
+      "blake3_hex": "a047c851781ec680da0576399e2575d77d5980954b8293c55b71bcdc64676a6a",
+      "dir16": "a047c851781ec680"
+    },
+    {
+      "size": 6291456,
+      "blake3_hex": "44ae765b700383816cffedc21c69c5d8331cd40ea56428185483714b9c4e5f44",
+      "dir16": "44ae765b70038381"
+    },
+    {
+      "size": 9437184,
+      "blake3_hex": "d4fb5c41d25eca6b5c2ff38c3913018b6d2d171f002a2b6ac2db06c3679f5b46",
+      "dir16": "d4fb5c41d25eca6b"
+    }
+  ]
+}

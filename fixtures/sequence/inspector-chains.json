@@ -1,0 +1,463 @@
+{
+  "_comment": "M2.15「Inspector 的數值與 plan 一致」：project 是輸入；expected 由 engine media/audio_graph.build 產生（engine/tests/test_inspector_chains.py 驗證它仍然成立），src/inspector/clipFacts.test.ts 讀同一份。null = 這個片段不進混音。重產：PYTHONPATH=engine/src python engine/tests/test_inspector_chains.py --write",
+  "project": {
+    "schemaVersion": 2,
+    "app": {
+      "name": "AI Video Cut",
+      "version": "0.0.6"
+    },
+    "createdAt": "2026-09-17T00:00:00.000Z",
+    "updatedAt": "2026-09-17T00:00:00.000Z",
+    "media": [
+      {
+        "id": "m1",
+        "path": "D:\\media\\sample_clip1.webm",
+        "name": "sample_clip1.webm",
+        "fingerprint": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "probe": {
+          "container": "matroska,webm",
+          "video": {
+            "width": 1280,
+            "height": 720
+          }
+        },
+        "proxy": {
+          "version": 1,
+          "fps": {
+            "num": 30,
+            "den": 1
+          },
+          "frames": 1797,
+          "width": 1280,
+          "height": 720,
+          "scale": 1,
+          "path": "C:\\cache\\media\\0123456789abcdef\\proxy.mp4"
+        },
+        "audio": {
+          "codec": "opus",
+          "sampleRate": 48000,
+          "channels": 2,
+          "channelLayout": "stereo",
+          "startUs": 6500,
+          "videoStartUs": 0,
+          "nSamples": 2875200,
+          "gaps": [
+            {
+              "atUs": 40000000,
+              "durUs": 1200000
+            }
+          ]
+        }
+      }
+    ],
+    "activeMediaId": "m1",
+    "profile": "cards",
+    "shots": {
+      "m1": []
+    },
+    "tracks": {
+      "m1": []
+    },
+    "cardSlots": {
+      "m1": []
+    },
+    "deck": {
+      "styleId": "demo-deck",
+      "source": "builtin"
+    },
+    "insertDefaults": {
+      "macro": "standard",
+      "opacity": 100,
+      "applyMix": 100,
+      "edge": {
+        "choke": 0.6,
+        "softness": 0.8,
+        "falloff": "linear"
+      },
+      "occlusion": {
+        "dilate": 1,
+        "feather": 1.2
+      },
+      "motionBlur": {
+        "shutterAngle": 180,
+        "shutterPhase": "centered",
+        "samples": "auto"
+      },
+      "resample": {
+        "kernel": "lanczos3",
+        "clamp": true
+      },
+      "relight": {
+        "keepHighlights": 100,
+        "sheenLock": "plate"
+      },
+      "grain": {
+        "mode": "measured",
+        "amount": 100
+      }
+    },
+    "exportDefaults": {
+      "codec": "",
+      "quality": null,
+      "audio": "copy",
+      "trackData": {
+        "format": "nuke",
+        "flavour": "cornerpin",
+        "baked": true,
+        "frameOffset": 1
+      }
+    },
+    "sequence": {
+      "id": "seq-1",
+      "name": "sample_clip1",
+      "fps": {
+        "num": 30,
+        "den": 1
+      },
+      "width": 1280,
+      "height": 720,
+      "sampleRate": 48000,
+      "video": [
+        {
+          "kind": "clip",
+          "id": "c1",
+          "mediaId": "m1",
+          "srcIn": 60,
+          "srcOut": 360,
+          "enabled": true,
+          "audio": {
+            "enabled": true,
+            "gainDb": 0,
+            "fadeIn": 0,
+            "fadeOut": 0,
+            "fadeCurve": "linear",
+            "envelope": []
+          }
+        },
+        {
+          "kind": "clip",
+          "id": "c2",
+          "mediaId": "m1",
+          "srcIn": 930,
+          "srcOut": 1380,
+          "enabled": true,
+          "audio": {
+            "enabled": true,
+            "gainDb": -3,
+            "fadeIn": 0,
+            "fadeOut": 48000,
+            "fadeCurve": "equalPower",
+            "envelope": [
+              {
+                "at": 0,
+                "db": -2
+              },
+              {
+                "at": 720000,
+                "db": -2
+              }
+            ]
+          }
+        },
+        {
+          "kind": "clip",
+          "id": "c3",
+          "mediaId": "m1",
+          "srcIn": 0,
+          "srcOut": 30,
+          "enabled": true,
+          "audio": {
+            "enabled": true,
+            "gainDb": 0,
+            "fadeIn": 0,
+            "fadeOut": 0,
+            "fadeCurve": "linear",
+            "envelope": []
+          }
+        },
+        {
+          "kind": "clip",
+          "id": "c4",
+          "mediaId": "m1",
+          "srcIn": 1230,
+          "srcOut": 1260,
+          "enabled": true,
+          "audio": {
+            "enabled": true,
+            "gainDb": 0,
+            "fadeIn": 0,
+            "fadeOut": 0,
+            "fadeCurve": "linear",
+            "envelope": []
+          }
+        },
+        {
+          "kind": "clip",
+          "id": "c5",
+          "mediaId": "m1",
+          "srcIn": 1500,
+          "srcOut": 1560,
+          "enabled": false,
+          "audio": {
+            "enabled": true,
+            "gainDb": 0,
+            "fadeIn": 0,
+            "fadeOut": 0,
+            "fadeCurve": "linear",
+            "envelope": []
+          }
+        },
+        {
+          "kind": "clip",
+          "id": "c6",
+          "mediaId": "m1",
+          "srcIn": 1560,
+          "srcOut": 1590,
+          "enabled": true,
+          "audio": {
+            "enabled": false,
+            "gainDb": 0,
+            "fadeIn": 0,
+            "fadeOut": 0,
+            "fadeCurve": "linear",
+            "envelope": [],
+            "detachedTo": "d1"
+          }
+        }
+      ],
+      "original": {
+        "muted": false,
+        "gainDb": -1.5
+      },
+      "audioLanes": [
+        {
+          "id": "lane-1",
+          "name": "A1 音樂",
+          "role": "music",
+          "muted": false,
+          "locked": false,
+          "syncLock": false,
+          "gainDb": -2,
+          "clips": [
+            {
+              "id": "a1",
+              "source": {
+                "type": "audio",
+                "audioId": "a-5f00000000000000"
+              },
+              "start": 48000,
+              "length": 960000,
+              "srcIn": 88200,
+              "enabled": true,
+              "gainDb": -12,
+              "fadeIn": 96000,
+              "fadeOut": 144000,
+              "fadeCurve": "equalPower",
+              "envelope": [
+                {
+                  "at": 420000,
+                  "db": 0
+                },
+                {
+                  "at": 432000,
+                  "db": -10
+                },
+                {
+                  "at": 624000,
+                  "db": -10
+                },
+                {
+                  "at": 636000,
+                  "db": 0
+                }
+              ]
+            },
+            {
+              "id": "a2",
+              "source": {
+                "type": "audio",
+                "audioId": "a-5f00000000000000"
+              },
+              "start": 1100000,
+              "length": 100000,
+              "srcIn": 0,
+              "enabled": false,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          ]
+        },
+        {
+          "id": "lane-2",
+          "name": "A2 原音（分離）",
+          "role": "other",
+          "muted": false,
+          "locked": false,
+          "syncLock": true,
+          "gainDb": 0,
+          "clips": [
+            {
+              "id": "d1",
+              "source": {
+                "type": "media",
+                "mediaId": "m1"
+              },
+              "start": 1392000,
+              "length": 48000,
+              "srcIn": -312,
+              "enabled": true,
+              "gainDb": 4.5,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": [],
+              "detachedFrom": "c6"
+            }
+          ]
+        },
+        {
+          "id": "lane-3",
+          "name": "A3 音效",
+          "role": "sfx",
+          "muted": true,
+          "locked": false,
+          "syncLock": true,
+          "gainDb": 0,
+          "clips": [
+            {
+              "id": "a3",
+              "source": {
+                "type": "audio",
+                "audioId": "a-5f00000000000000"
+              },
+              "start": 0,
+              "length": 48000,
+              "srcIn": 0,
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          ]
+        },
+        {
+          "id": "lane-4",
+          "name": "A4 音效",
+          "role": "sfx",
+          "muted": false,
+          "locked": false,
+          "syncLock": true,
+          "gainDb": 0,
+          "clips": [
+            {
+              "id": "a4",
+              "source": {
+                "type": "audio",
+                "audioId": "a-5f00000000000000"
+              },
+              "start": 1500000,
+              "length": 48000,
+              "srcIn": 0,
+              "enabled": true,
+              "gainDb": 0,
+              "fadeIn": 0,
+              "fadeOut": 0,
+              "fadeCurve": "linear",
+              "envelope": []
+            }
+          ]
+        }
+      ],
+      "audio": {
+        "edgeDeclickMs": 3,
+        "limiter": false
+      }
+    },
+    "audioMedia": [
+      {
+        "id": "a-5f00000000000000",
+        "path": "D:\\music\\bgm.mp3",
+        "name": "bgm.mp3",
+        "fingerprint": "5f00000000000000000000000000000000000000000000000000000000000000",
+        "probe": null,
+        "role": "music",
+        "audio": {
+          "codec": "mp3",
+          "sampleRate": 44100,
+          "channels": 2,
+          "channelLayout": "stereo",
+          "startUs": 25057,
+          "videoStartUs": null,
+          "nSamples": 2646000,
+          "gaps": []
+        }
+      }
+    ]
+  },
+  "expected": {
+    "c1": {
+      "inUs": 2000000,
+      "outUs": 12000000,
+      "length": 480000,
+      "delay": 0,
+      "leadPad": 0,
+      "gainDb": -1.5,
+      "envMaxDb": 0.0
+    },
+    "c2": {
+      "inUs": 31000000,
+      "outUs": 46000000,
+      "length": 720000,
+      "delay": 480000,
+      "leadPad": 0,
+      "gainDb": -6.5,
+      "envMaxDb": 0.0
+    },
+    "c3": {
+      "inUs": 0,
+      "outUs": 1000000,
+      "length": 48000,
+      "delay": 1200000,
+      "leadPad": 312,
+      "gainDb": -1.5,
+      "envMaxDb": 0.0
+    },
+    "c4": {
+      "inUs": 41000000,
+      "outUs": 42000000,
+      "length": 48000,
+      "delay": 1248000,
+      "leadPad": 9600,
+      "gainDb": -1.5,
+      "envMaxDb": 0.0
+    },
+    "c5": null,
+    "c6": null,
+    "a1": {
+      "inUs": 2025057,
+      "outUs": 22025057,
+      "length": 960000,
+      "delay": 48000,
+      "leadPad": 0,
+      "gainDb": -14.0,
+      "envMaxDb": 0.0
+    },
+    "a2": null,
+    "d1": {
+      "inUs": 0,
+      "outUs": 1000000,
+      "length": 48000,
+      "delay": 1392000,
+      "leadPad": 312,
+      "gainDb": 4.5,
+      "envMaxDb": 0.0
+    },
+    "a3": null,
+    "a4": null
+  }
+}

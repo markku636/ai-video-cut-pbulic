@@ -1,0 +1,22 @@
+{
+  "comment": "peaks.v1.bin（AIVP v1）共用 golden：Rust src-tauri/src/peaks.rs 依 segments 打包必須逐位元等於 hex，TS src/audio/peaks.test.ts 解析 hex 必須得到 expect。版面改了要升版本號並重生這份檔。segments：ramp = from + (to - from) * i / (n - 1)；silence = n 個 0（走 push_silence）；alternate = a, b, a, b…。桶 0 斜坡 ±0.5（min −64、max 64、RMS −10.75 dBFS → 209、第 120 個樣本上升過零）；桶 1 整桶靜音（零交越 255 = 沒有）；桶 2 只有 20 個樣本的尾桶 ±1（RMS 0 dBFS → 255、第 2 個樣本過零）。streamStartUs −7000 驗有號 i64（Opus pre-skip）。",
+  "segments": [
+    { "kind": "ramp", "n": 240, "from": -0.5, "to": 0.5 },
+    { "kind": "silence", "n": 240 },
+    { "kind": "alternate", "n": 20, "a": 1.0, "b": -1.0 }
+  ],
+  "streamStartUs": -7000,
+  "hex": "4149565001000000c800000080bb000003000000f401000000000000a8e4ffffffffffffc0008140007fd100ff78ff02",
+  "expect": {
+    "version": 1,
+    "pps": 200,
+    "sampleRate": 48000,
+    "nBuckets": 3,
+    "totalSamples": 500,
+    "streamStartUs": -7000,
+    "mins": [-64, 0, -127],
+    "maxs": [64, 0, 127],
+    "rms": [209, 0, 255],
+    "zx": [120, 255, 2]
+  }
+}

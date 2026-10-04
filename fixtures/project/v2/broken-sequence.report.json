@@ -1,0 +1,45 @@
+{
+  "description": "broken-sequence.aivc.json 經 TS parseProjectFile 的 sanitize 報告 golden（docs/editor-m2-design.md §3.5）。dropped = 丟掉的筆數；warnings = 保留但修正過的項目，依處理順序。第二次讀（寫出後再讀）只剩 again 裡的三條：離線與 fps／尺寸不符是媒體的事實，不是檔案壞掉，修不掉。",
+  "dropped": {
+    "audioInfo": 1,
+    "audioMedia": 2,
+    "audioInfo.gaps": 1,
+    "sequence.video": 5,
+    "sequence.envelope": 1,
+    "sequence.audioClips": 3,
+    "sequence.overlap": 1,
+    "sequence.audioLanes": 1
+  },
+  "total": 15,
+  "warnings": [
+    { "code": "audioMedia.role", "ref": "a-badrole" },
+    { "code": "sequence.fps" },
+    { "code": "sequence.sampleRate" },
+    { "code": "sequence.offline", "ref": "c2" },
+    { "code": "sequence.fpsMismatch", "ref": "m2" },
+    { "code": "sequence.sizeMismatch", "ref": "m3" },
+    { "code": "sequence.gain", "ref": "c4" },
+    { "code": "sequence.fadeCurve", "ref": "c4" },
+    { "code": "sequence.fades", "ref": "c1" },
+    { "code": "sequence.envelope", "ref": "c4" },
+    { "code": "sequence.edgeDeclick" },
+    { "code": "sequence.fades", "ref": "a-df" },
+    { "code": "sequence.laneId", "ref": "lane-2" },
+    { "code": "sequence.role", "ref": "lane-2" },
+    { "code": "sequence.gain", "ref": "lane-2" },
+    { "code": "sequence.id", "ref": "c1-2" },
+    { "code": "sequence.id", "ref": "gap-2" },
+    { "code": "sequence.detachedTo", "ref": "c2" },
+    { "code": "sequence.detachedTo", "ref": "c4" },
+    { "code": "sequence.detachedFrom", "ref": "a-df" }
+  ],
+  "again": {
+    "dropped": {},
+    "total": 0,
+    "warnings": [
+      { "code": "sequence.offline", "ref": "c2" },
+      { "code": "sequence.fpsMismatch", "ref": "m2" },
+      { "code": "sequence.sizeMismatch", "ref": "m3" }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+# PyPI 依賴（torch/torchvision 另走 requirements-torch.txt）。
+# 第一版是「已知可用的釘版／下限」，E0 跑過 uv pip compile 後改成完整 lock。
+transformers==5.17.0          # Sam2VideoModel / Sam2VideoProcessor（Apache-2.0、純 PyTorch、無 hydra）
+accelerate>=1.0
+safetensors>=0.4
+huggingface-hub>=0.30
+av==18.1.0                    # PyAV：自帶 FFmpeg 8（vp9_cuvid / nvenc）；PTS 精確
+numpy==2.4.6
+pillow>=11.3                  # 11.3 起官方 wheel 內建 AVIF 解碼：cards/atlas.py 讀產品牌面圖集（本機 12.3.0）
+pycocotools>=2.0.8            # COCO RLE 遮罩
+opencv-contrib-python>=4.10,<5   # 5.x 已上 PyPI，API 變動，必須 <5
+scipy>=1.13                   # savgol_filter
+blake3>=1.0                   # 與 ai-music-cut ffmpeg.rs 相同的媒體指紋
+tqdm>=4.66
+resvg-py==0.5.0               # SVG 點陣化（aivc deck-build 從 SVGCards 取字模）；in-process、會載系統字型；MIT 綁定 / resvg MPL-2.0
+# ---- 動態字幕：本機語音辨識（feat/captions；2026-09-17 dry-run 只新增 8 個套件、不動既有釘版）----
+faster-whisper==1.2.1         # 詞級時間戳 + Silero VAD（MIT）
+ctranslate2==4.8.2            # faster-whisper 的推論後端；Windows wheel 自帶 cudnn64_9.dll；RTX 5090 實測 float16 可用（MIT）
+onnxruntime==1.30.0           # Silero VAD（MIT）
+flatbuffers==25.12.19         # onnxruntime 依賴
+protobuf==7.36.1              # onnxruntime 依賴
+opencc==1.4.2                 # 簡→繁（s2twp 台灣用詞）；Apache-2.0
+# CTranslate2 要 CUDA 12 的 cuBLAS：只在 Windows 裝（CI Ubuntu 用 pip 裝這份 lock，多 ~900 MB 不值得；Linux 需系統 libcublas.so.12）
+nvidia-cublas-cu12==12.9.2.10 ; sys_platform == "win32"
+nvidia-cuda-nvrtc-cu12==12.9.86 ; sys_platform == "win32"
+# dev
+pytest>=8,<10

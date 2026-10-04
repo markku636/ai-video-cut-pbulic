@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 2,
+  "app": { "name": "AI Video Cut", "version": "0.0.6" },
+  "createdAt": "2026-09-17T00:00:00.000Z",
+  "updatedAt": "2026-09-17T00:00:00.000Z",
+  "media": [
+    {
+      "id": "m1", "path": "D:\\v\\m1.webm", "name": "m1.webm", "fingerprint": "", "probe": { "video": { "width": 1280, "height": 720 } },
+      "proxy": { "version": 1, "fps": { "num": 30, "den": 1 }, "frames": 100, "width": 1280, "height": 720, "scale": 1, "path": "C:\\c\\m1\\proxy.mp4" },
+      "audio": { "codec": "opus", "sampleRate": 48000, "channels": 2, "channelLayout": "stereo", "startUs": 6500, "videoStartUs": 0, "nSamples": 160000, "gaps": [] }
+    },
+    {
+      "id": "m2", "path": "D:\\v\\m2.mp4", "name": "m2.mp4", "fingerprint": "", "probe": { "video": { "width": 1280, "height": 720 } },
+      "proxy": { "version": 1, "fps": { "num": 25, "den": 1 }, "frames": 50, "width": 1280, "height": 720, "scale": 1, "path": "C:\\c\\m2\\proxy.mp4" },
+      "audio": null
+    },
+    {
+      "id": "m3", "path": "D:\\v\\m3.mov", "name": "m3.mov", "fingerprint": "", "probe": { "video": { "width": 640, "height": 360 } },
+      "proxy": { "fps": { "num": 30, "den": 1 }, "frames": 300, "width": 640, "height": 360, "scale": 1, "version": 1 }
+    },
+    {
+      "id": "m4", "path": "D:\\v\\m4.webm", "name": "m4.webm", "fingerprint": "", "probe": null, "proxy": null,
+      "audio": { "codec": "opus", "sampleRate": "48000", "channels": 2 }
+    }
+  ],
+  "activeMediaId": "m1",
+  "profile": "cards",
+  "shots": {},
+  "tracks": {},
+  "cardSlots": {},
+  "sequence": {
+    "id": "seq-1",
+    "name": "broken",
+    "fps": "30",
+    "width": 1280,
+    "height": 720,
+    "sampleRate": 44100,
+    "futureSeqKey": { "x": 1 },
+    "video": [
+      {
+        "kind": "clip", "id": "c1", "mediaId": "m1", "srcIn": 0, "srcOut": 40, "enabled": true,
+        "audio": { "enabled": true, "gainDb": 0, "fadeIn": 48000, "fadeOut": 48000, "fadeCurve": "linear", "envelope": [] }
+      },
+      { "kind": "clip", "id": "ghost", "mediaId": "ghost", "srcIn": 0, "srcOut": 10, "enabled": true },
+      { "kind": "gap", "id": "g0", "length": 0 },
+      { "kind": "title", "id": "t1", "text": "hello" },
+      {
+        "kind": "clip", "id": "c2", "mediaId": "m1", "srcIn": 50, "srcOut": 120, "enabled": true, "label": "離線片段",
+        "audio": { "enabled": false, "gainDb": 0, "fadeIn": 0, "fadeOut": 0, "fadeCurve": "linear", "envelope": [], "detachedTo": "nope" }
+      },
+      { "kind": "clip", "id": "c1", "mediaId": "m2", "srcIn": 0, "srcOut": 10, "enabled": false },
+      { "kind": "clip", "id": "c3", "mediaId": "m3", "srcIn": 5, "srcOut": 5, "enabled": true },
+      {
+        "kind": "clip", "id": "c4", "mediaId": "m3", "srcIn": 0, "srcOut": 30, "enabled": true, "futureClipKey": [1, 2],
+        "audio": { "enabled": true, "gainDb": 40, "fadeIn": 0, "fadeOut": 0, "fadeCurve": "sCurve", "envelope": [ { "at": 5000, "db": 0 }, { "at": -10, "db": -200 }, { "at": "x", "db": 1 } ], "detachedTo": "ad1" }
+      },
+      { "kind": "gap", "length": 5 },
+      "junk"
+    ],
+    "original": { "muted": false, "gainDb": -3, "futureBus": 1 },
+    "audioLanes": [
+      {
+        "id": "lane-1", "name": "A1 音樂", "role": "music", "muted": false, "locked": false, "gainDb": 0,
+        "clips": [
+          { "id": "ad1", "source": { "type": "media", "mediaId": "m3" }, "start": 0, "length": 48000, "srcIn": -312, "enabled": true, "gainDb": 0, "fadeIn": 0, "fadeOut": 0, "fadeCurve": "linear", "envelope": [], "detachedFrom": "c4" },
+          { "id": "a-ov", "source": { "type": "audio", "audioId": "a-ok" }, "start": 24000, "length": 48000, "srcIn": 0, "enabled": true, "gainDb": 0, "fadeIn": 0, "fadeOut": 0, "fadeCurve": "linear", "envelope": [] },
+          { "id": "a-miss", "source": { "type": "audio", "audioId": "missing" }, "start": 200000, "length": 48000, "srcIn": 0 },
+          { "id": "a-zero", "source": { "type": "audio", "audioId": "a-ok" }, "start": 300000, "length": 0, "srcIn": 0 },
+          { "id": "a-neg", "source": { "type": "audio", "audioId": "a-ok" }, "start": 400000, "length": 48000, "srcIn": -441001 },
+          { "id": "a-df", "source": { "type": "audio", "audioId": "a-ok" }, "start": 96000, "length": 48000, "srcIn": 0, "enabled": true, "gainDb": 0, "fadeIn": 40000, "fadeOut": 40000, "fadeCurve": "equalPower", "envelope": [], "detachedFrom": "ghost-clip" }
+        ]
+      },
+      { "id": "lane-1", "name": "A2", "role": "podcast", "muted": true, "locked": false, "syncLock": true, "gainDb": 99, "clips": [] },
+      "notalane"
+    ],
+    "audio": { "edgeDeclickMs": -1 }
+  },
+  "audioMedia": [
+    { "id": "a-ok", "path": "D:\\music\\ok.mp3", "name": "ok.mp3", "fingerprint": "", "probe": null, "role": "music", "audio": { "codec": "mp3", "sampleRate": 44100, "channels": 2, "channelLayout": "stereo", "startUs": 25057, "videoStartUs": null, "nSamples": 441000, "gaps": [] } },
+    { "path": "D:\\music\\noid.mp3" },
+    { "id": "a-ok", "path": "D:\\music\\dup.mp3" },
+    { "id": "a-badrole", "path": "D:\\music\\b.wav", "role": "podcast", "audio": { "codec": "pcm_s16le", "sampleRate": 48000, "channels": 1, "channelLayout": null, "startUs": 0, "nSamples": 48000, "gaps": [ { "atUs": 1, "durUs": 0 } ] } }
+  ]
+}

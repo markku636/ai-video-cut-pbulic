@@ -1,0 +1,232 @@
+{
+  "description": "broken-sequence.aivc.json 修正後的內容（docs/editor-m2-design.md §3.5）。TS parseProjectFile→buildProjectFile 與 Python schema.load→dumps 都必須得到這份值（比值，不比數字格式與鍵順序），兩邊的測試讀同一份檔案，規則表漂移時兩邊都會紅。media 只列 id 與 audio（原本沒有 audio 鍵的媒體不能長出來）；proxy 不列：TS 把缺 path 的 proxy 讀成 null 是 v1 既有的前端規則，引擎保留。",
+  "media": [
+    {
+      "id": "m1",
+      "audio": {
+        "codec": "opus",
+        "sampleRate": 48000,
+        "channels": 2,
+        "channelLayout": "stereo",
+        "startUs": 6500,
+        "videoStartUs": 0,
+        "nSamples": 160000,
+        "gaps": []
+      }
+    },
+    {
+      "id": "m2",
+      "audio": null
+    },
+    {
+      "id": "m3"
+    },
+    {
+      "id": "m4",
+      "audio": null
+    }
+  ],
+  "sequence": {
+    "id": "seq-1",
+    "name": "broken",
+    "fps": {
+      "num": 30,
+      "den": 1
+    },
+    "width": 1280,
+    "height": 720,
+    "sampleRate": 48000,
+    "video": [
+      {
+        "kind": "clip",
+        "id": "c1",
+        "mediaId": "m1",
+        "srcIn": 0,
+        "srcOut": 40,
+        "enabled": true,
+        "audio": {
+          "enabled": true,
+          "gainDb": 0,
+          "fadeIn": 32000,
+          "fadeOut": 32000,
+          "fadeCurve": "linear",
+          "envelope": []
+        }
+      },
+      {
+        "kind": "clip",
+        "id": "c2",
+        "mediaId": "m1",
+        "srcIn": 50,
+        "srcOut": 120,
+        "enabled": true,
+        "audio": {
+          "enabled": true,
+          "gainDb": 0,
+          "fadeIn": 0,
+          "fadeOut": 0,
+          "fadeCurve": "linear",
+          "envelope": []
+        },
+        "label": "離線片段"
+      },
+      {
+        "kind": "clip",
+        "id": "c1-2",
+        "mediaId": "m2",
+        "srcIn": 0,
+        "srcOut": 10,
+        "enabled": false,
+        "audio": {
+          "enabled": true,
+          "gainDb": 0,
+          "fadeIn": 0,
+          "fadeOut": 0,
+          "fadeCurve": "linear",
+          "envelope": []
+        }
+      },
+      {
+        "kind": "clip",
+        "id": "c4",
+        "mediaId": "m3",
+        "srcIn": 0,
+        "srcOut": 30,
+        "enabled": true,
+        "audio": {
+          "enabled": false,
+          "gainDb": 12,
+          "fadeIn": 0,
+          "fadeOut": 0,
+          "fadeCurve": "linear",
+          "envelope": [
+            {
+              "at": 0,
+              "db": -96
+            },
+            {
+              "at": 5000,
+              "db": 0
+            }
+          ],
+          "detachedTo": "ad1"
+        },
+        "futureClipKey": [
+          1,
+          2
+        ]
+      },
+      {
+        "kind": "gap",
+        "id": "gap-2",
+        "length": 5
+      }
+    ],
+    "original": {
+      "muted": false,
+      "gainDb": -3,
+      "futureBus": 1
+    },
+    "audioLanes": [
+      {
+        "id": "lane-1",
+        "name": "A1 音樂",
+        "role": "music",
+        "muted": false,
+        "locked": false,
+        "syncLock": false,
+        "gainDb": 0,
+        "clips": [
+          {
+            "id": "ad1",
+            "source": {
+              "type": "media",
+              "mediaId": "m3"
+            },
+            "start": 0,
+            "length": 48000,
+            "srcIn": -312,
+            "enabled": true,
+            "gainDb": 0,
+            "fadeIn": 0,
+            "fadeOut": 0,
+            "fadeCurve": "linear",
+            "envelope": [],
+            "detachedFrom": "c4"
+          },
+          {
+            "id": "a-df",
+            "source": {
+              "type": "audio",
+              "audioId": "a-ok"
+            },
+            "start": 96000,
+            "length": 48000,
+            "srcIn": 0,
+            "enabled": true,
+            "gainDb": 0,
+            "fadeIn": 24000,
+            "fadeOut": 24000,
+            "fadeCurve": "equalPower",
+            "envelope": []
+          }
+        ]
+      },
+      {
+        "id": "lane-2",
+        "name": "A2",
+        "role": "other",
+        "muted": true,
+        "locked": false,
+        "syncLock": true,
+        "gainDb": 12,
+        "clips": []
+      }
+    ],
+    "audio": {
+      "edgeDeclickMs": 3,
+      "limiter": false
+    },
+    "futureSeqKey": {
+      "x": 1
+    }
+  },
+  "audioMedia": [
+    {
+      "id": "a-ok",
+      "path": "D:\\music\\ok.mp3",
+      "name": "ok.mp3",
+      "fingerprint": "",
+      "probe": null,
+      "role": "music",
+      "audio": {
+        "codec": "mp3",
+        "sampleRate": 44100,
+        "channels": 2,
+        "channelLayout": "stereo",
+        "startUs": 25057,
+        "videoStartUs": null,
+        "nSamples": 441000,
+        "gaps": []
+      }
+    },
+    {
+      "id": "a-badrole",
+      "path": "D:\\music\\b.wav",
+      "name": "b.wav",
+      "fingerprint": "",
+      "probe": null,
+      "role": "other",
+      "audio": {
+        "codec": "pcm_s16le",
+        "sampleRate": 48000,
+        "channels": 1,
+        "channelLayout": null,
+        "startUs": 0,
+        "videoStartUs": null,
+        "nSamples": 48000,
+        "gaps": []
+      }
+    }
+  ]
+}

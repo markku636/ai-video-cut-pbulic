@@ -1,0 +1,267 @@
+name: check
+
+# 每次 push / PR 跑的檢查，對應計畫 §10「每步結束 npm run check + cargo test --no-default-features + pytest 綠」。
+# 全部是硬閘門：
+#   - web：npm run check（ubuntu）
+#   - rust：cargo test --no-default-features，Windows / Linux / macOS 三平台各跑一次（路徑、行程、ffmpeg 解析都有平台分支）；
+#           Linux / macOS 另跑 clippy -D warnings（unix 專屬的程式碼只有在那裡才會被編到）
+#   - scripts：bootstrap-engine.sh 的 POSIX 語法 + shellcheck（App 在 macOS / Linux 實際執行的安裝腳本）＋「ffmpeg 不能用就在下載前停」
+#   - engine：CPU pytest，ubuntu + apt ffmpeg（2026-09-17 拿掉 continue-on-error）、macOS + Homebrew ffmpeg、
+#             Windows + winget/choco ffmpeg（B-22：@windows_only 的測試以前只在開發機跑過）；
+#             test_encode_fallback.py 的真 proxy 整合測試在 ubuntu / macOS 不准 skip
+# GPU 測試（@pytest.mark.gpu）不在 CI 跑，發版前在本機跑（GitHub 的 macOS runner 是 VM，沒有 MPS）。
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: npm run check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      # peer 衝突（vitest 4 vs 幾個 vite 外掛）→ 一律 --legacy-peer-deps，與 release.yml 同
+      - name: Install frontend deps
+        run: npm ci --legacy-peer-deps
+
+      # 版號三處要等於 package.json；這裡不帶 --strict：A0/A1 期間 src-tauri 或 engine 可能還沒建
+      - name: Verify version sync
+        run: node scripts/sync-version.mjs --check
+
+      # tsc + eslint + vitest + check-theme-tokens + check-i18n + check-secrets（check-secrets 靠 git ls-files，checkout 後即可）
+      - name: npm run check
+        run: npm run check
+
+  rust:
+    name: cargo test --no-default-features (${{ matrix.os }})
+    strategy:
+      # 一個平台紅不要取消其他平台：平台差異的 bug 往往要同時看三邊的結果才判斷得出來
+      fail-fast: false
+      matrix:
+        # ubuntu 用 22.04 與 release.yml 同一個基準（WebKitGTK 4.1 / glibc 2.35）；macos-14 已公告 2026-11 退役，用 macos-15
+        os: [windows-latest, ubuntu-22.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # clippy 不在 dtolnay 的 minimal profile 裡，要明確要
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      # --no-default-features 只拿掉 custom-protocol，tauri / wry 在 Linux 仍然連結 WebKitGTK 與 GTK，
+      # keyring 的 sync-secret-service 後端要 libdbus：少了這些 build script 的 pkg-config 會直接失敗。
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
+            libdbus-1-dev libssl-dev libxdo-dev build-essential pkg-config
+
+      # engine.rs 的假引擎測試要一個能跑的 python（寫一個假 aivc 套件進 PYTHONPATH，走真的 `-m aivc serve` 路徑）；
+      # 找不到會 SKIP 不會紅，但我們要它真的跑。不需要 torch。
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # --no-default-features：不帶 tauri 的 custom-protocol 等 bundle 特徵，純邏輯測試（probe 解析、clean_path、
+      # safe_join、is_exception_line、settings 序列化、假引擎協定）不需要真的開視窗也能跑
+      - name: cargo test
+        run: cargo test --no-default-features
+        working-directory: src-tauri
+
+      # 只在 Linux / macOS 跑：proc.rs 的 AppImage 環境清理與 std_cmd、macOS 的 detect_hardware、lib.rs 的 Linux DMABUF 區塊
+      # 都是 cfg(unix / target_os) 專屬，Windows 上的 clippy 根本編不到它們（Windows 那份在本機發版前跑，CI 不重複一次完整 check build）。
+      # !cancelled()：測試紅了也照跑，兩種問題一次看完，不用修一輪才冒出下一輪。
+      - name: cargo clippy -D warnings
+        if: ${{ !cancelled() && runner.os != 'Windows' }}
+        run: cargo clippy --no-default-features --all-targets -- -D warnings
+        working-directory: src-tauri
+
+  scripts:
+    name: bootstrap-engine.sh lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # App 在 macOS / Linux 以 bash 執行這支、使用者手動多半用 sh（Ubuntu 是 dash）：兩種都要能解析。
+      # shellcheck -s sh：禁止 bash 專屬語法混進來（ubuntu runner 預裝 shellcheck）。
+      # CRLF 檢查：Windows 上用會轉行尾的編輯器改過，sh 在使用者機器上會以 `$'\r': command not found` 失敗。
+      - name: sh -n / bash -n / shellcheck
+        run: |
+          set -eu
+          f=scripts/bootstrap-engine.sh
+          if grep -q "$(printf '\r')" "$f"; then echo "::error file=$f::CRLF line endings"; exit 1; fi
+          sh -n "$f"
+          bash -n "$f"
+          shellcheck --version | head -2
+          shellcheck -s sh "$f"
+          sh "$f" --help
+
+      # ffmpeg 預檢必須在建立資料根、下載任何東西之前（macOS / Linux 不內建 ffmpeg，沒擋的話 6-7 GB 下載完才在 doctor 閘門失敗）。
+      # 用一個「跑不起來」的假 ffmpeg 放在第一順位的 AIVC_FFMPEG_DIR：不管 runner 自己有沒有 ffmpeg，結果都固定。
+      # PATH 最前面放一支會失敗的假 curl 當絆線：真的走到下載就會在輸出裡看到它。
+      - name: bootstrap-engine.sh stops before any download when ffmpeg is unusable
+        run: |
+          set -eu
+          t="$RUNNER_TEMP/ffmpeg-precheck"
+          mkdir -p "$t/ff" "$t/bin"
+          printf '#!/bin/sh\necho "dyld: Library not loaded" >&2\nexit 1\n' > "$t/ff/ffmpeg"
+          cp "$t/ff/ffmpeg" "$t/ff/ffprobe"
+          printf '#!/bin/sh\necho "TRIPWIRE: curl ran" >&2\nexit 99\n' > "$t/bin/curl"
+          chmod +x "$t/ff/ffmpeg" "$t/ff/ffprobe" "$t/bin/curl"
+          code=0
+          AIVC_FFMPEG_DIR="$t/ff" PATH="$t/bin:$PATH" sh scripts/bootstrap-engine.sh --data-root "$t/root" > "$t/out" 2>&1 || code=$?
+          cat "$t/out"
+          if [ "$code" -ne 1 ]; then echo "::error::expected exit 1, got $code"; exit 1; fi
+          if ! grep -q "無法執行" "$t/out"; then echo "::error::missing 'unusable ffmpeg' message"; exit 1; fi
+          if grep -q "TRIPWIRE" "$t/out"; then echo "::error::script reached the download step"; exit 1; fi
+          if [ -e "$t/root" ]; then echo "::error::data root was created before the ffmpeg check"; exit 1; fi
+          # runner 本身沒有 ffmpeg 時，再驗「完全找不到」那條訊息帶安裝指令（有的話略過：常見目錄是寫死的，沒辦法藏起來）
+          if ! command -v ffmpeg >/dev/null 2>&1 && [ ! -e /usr/bin/ffmpeg ] && [ ! -e /usr/local/bin/ffmpeg ] && [ ! -e /home/linuxbrew/.linuxbrew/bin/ffmpeg ]; then
+            code=0
+            PATH="$t/bin:$PATH" sh scripts/bootstrap-engine.sh --data-root "$t/root2" > "$t/out2" 2>&1 || code=$?
+            cat "$t/out2"
+            if [ "$code" -ne 1 ] || ! grep -q "sudo apt install ffmpeg" "$t/out2" || [ -e "$t/root2" ]; then
+              echo "::error::not-found case must exit 1 with the apt command before creating anything"; exit 1
+            fi
+          else
+            echo "runner has an ffmpeg in a fixed search dir: skip the not-found case"
+          fi
+
+      # uv-manifest.json 的形狀（每平台一行、sha256 必填、頂層＝Windows 資產）由 build-engine-wheel.mjs --check 驗，
+      # 但那要先建 wheel；這裡只驗 sh 版解析得到本平台的資產，讓 manifest 被格式化工具改壞時在 PR 上就紅。
+      - name: uv-manifest.json is parseable by the sh script
+        run: |
+          set -eu
+          m=scripts/uv-manifest.json
+          for t in aarch64-apple-darwin x86_64-apple-darwin x86_64-unknown-linux-gnu x86_64-pc-windows-msvc; do
+            line=$(sed -n "/^[[:space:]]*\"$t\"[[:space:]]*:/p" "$m" | head -n 1)
+            url=$(printf '%s\n' "$line" | sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+            sha=$(printf '%s\n' "$line" | sed -n 's/.*"sha256"[[:space:]]*:[[:space:]]*"\([0-9a-f]*\)".*/\1/p')
+            echo "$t $url $sha"
+            test -n "$url"
+            test "${#sha}" -eq 64
+          done
+
+  engine:
+    name: pytest (CPU only, ${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 先裝 CPU 版 torch：requirements.lock.txt 刻意不含 torch（正式路徑 Windows / Linux 從 cu130 index 裝），
+          # 但 accelerate 會把 torch 當依賴拉進來 —— 不先裝 CPU 版，pip 會從 PyPI 抓帶 CUDA 的 Linux wheel（~2.5 GB）。
+          - os: ubuntu-latest
+            torch: python -m pip install --progress-bar off --disable-pip-version-check torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          # macOS：正式路徑本來就是 PyPI 的 torch（帶 MPS；runner 是 VM 沒有 Metal GPU，所以一樣靠 AIVC_ALLOW_CPU 放行）。
+          # 直接裝 bootstrap-engine.sh 用的那一份 requirements-torch-macos.txt，CI 測的就是使用者會裝到的版本。
+          - os: macos-15
+            torch: python -m pip install --progress-bar off --disable-pip-version-check -r engine/requirements-torch-macos.txt
+          # Windows（B-22）：這個平台上有 7 支測試以前只在開發機跑過 —— test_atomic_output.py 的 4 支 @windows_only
+          # （B-09 整個「輸出檔被鎖住」那一半）、test_atomic_io / test_serve_light_lane / test_serve_stdin / test_asr 的同步 I/O 測試。
+          # 而 B-04（cv2 對非 ASCII 路徑安靜失敗）根本是 Windows 專屬的 bug：在 ubuntu／macOS 上 test_unicode_paths.py
+          # 不管有沒有修都會綠。CPU 版 torch 從 PyPI 裝（正式路徑是 cu130 index，CI 沒有 GPU）。
+          - os: windows-latest
+            torch: python -m pip install --progress-bar off --disable-pip-version-check torch torchvision --index-url https://download.pytorch.org/whl/cpu
+    runs-on: ${{ matrix.os }}
+    env:
+      # 引擎的閘門預設拒絕 CPU torch（PATH 上的 CPU 版會安靜地跑 0.2 fps）；CI 沒有 GPU，明確放行
+      AIVC_ALLOW_CPU: "1"
+      # GitHub 本來就設 CI=true；寫明是因為 test_encode_fallback.py 靠它決定「找不到 ffmpeg 要 fail 不准 skip」
+      CI: "true"
+      PYTHONUTF8: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: engine/requirements.lock.txt
+
+      - name: Install torch (CPU in CI; the app installs +cu130 on Windows/Linux, PyPI MPS on macOS)
+        run: ${{ matrix.torch }}
+
+      - name: Install engine deps
+        run: python -m pip install --progress-bar off --disable-pip-version-check -r engine/requirements.lock.txt
+
+      - name: Install aivc (editable)
+        run: python -m pip install --progress-bar off --disable-pip-version-check -e engine
+
+      # ffmpeg + ffprobe 要在 PATH 上、而且在同一個目錄（引擎與 test_encode_fallback.py 都照這條規則找）；runner 沒有預裝。
+      # apt（Ubuntu）與 Homebrew 的 ffmpeg 都沒有 libopenh264 —— 那正是 macOS / Linux 使用者實際會用的 ffmpeg，
+      # test_encode_fallback.py 的整合測試用 lavfi 現做短片跑真的 `aivc proxy`，驗證 encoder 退到 libx264 / videotoolbox 真的建得出 proxy。
+      # 那支測試看到 CI=true 且在 macOS / Linux 時不准 skip（找不到 ffmpeg 直接紅）；這裡先把前提驗清楚，壞在安裝步驟比壞在 pytest 好懂。
+      # encoders 清單印出來：proxy 選了哪個 encoder 出問題時，不用重跑就知道這份 ffmpeg 有什麼。
+      - name: Install ffmpeg (apt)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -hide_banner -version | head -1
+
+      - name: Install ffmpeg (Homebrew)
+        if: runner.os == 'macOS'
+        run: |
+          brew install ffmpeg
+          ffmpeg -hide_banner -version | head -1
+
+      # windows-latest 的 runner 映像預裝 ffmpeg；沒有就用 choco 補（不要用 winget，非互動 session 上不穩）。
+      - name: Install ffmpeg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) { choco install ffmpeg -y --no-progress }
+          ffmpeg -hide_banner -version | Select-Object -First 1
+
+      - name: Check ffmpeg / ffprobe pair and H.264 encoders
+        shell: bash
+        run: |
+          set -eu
+          ff=$(command -v ffmpeg) || { echo "::error::ffmpeg is not on PATH"; exit 1; }
+          command -v ffprobe >/dev/null || { echo "::error::ffprobe is not on PATH"; exit 1; }
+          ffprobe -hide_banner -version | head -1
+          # 兩種「同目錄」都要成立：引擎 env.ffmpeg_dir() 看 PATH 上的目錄，測試 fixture 看 symlink 解開後的目錄（Homebrew 是 Cellar/…/bin）
+          real_dir=$(python -c 'import os,sys; print(os.path.dirname(os.path.realpath(sys.argv[1])))' "$ff")
+          for d in "$(dirname "$ff")" "$real_dir"; do
+            if [ ! -f "$d/ffprobe" ]; then echo "::error::no ffprobe next to ffmpeg in $d"; exit 1; fi
+          done
+          ffmpeg -hide_banner -encoders 2>/dev/null | grep -E ' (h264_|libx264|libopenh264|mpeg4)' || true
+
+      # 真 proxy 整合測試先單獨跑一次、-v 逐條列 PASSED / SKIPPED，並印出 [aivc-proxy-encoder] 那行：
+      # 「在 macOS / Linux 真的有跑、auto 選了哪個 H.264 編碼器」要在 log 裡一眼看得到，不用從整套 -q 的點點裡猜。
+      # 只有「這份 ffmpeg 沒有的候選」允許 skip（逐一強制編碼那組）；auto 與 mpeg4 降級兩條找不到 ffmpeg 會直接 fail。
+      - name: proxy encoder fallback (integration, must run)
+        shell: bash
+        run: python -m pytest -v -rs -m "not gpu" tests/test_encode_fallback.py -k "path_ffmpeg or builtin_only"
+        working-directory: engine
+
+      # -m "not gpu"：@gpu 標記的測試需要 CUDA / MPS + 模型，CI 跳過（pyproject 有註冊 marker）
+      # -rs：列出每個 skip 的理由（範例影片 gitignored 那批會 skip，要看得出不是別的原因）
+      - name: pytest
+        shell: bash
+        run: python -m pytest -q -rs -m "not gpu"
+        working-directory: engine

@@ -1,0 +1,61 @@
+# node / build
+node_modules/
+dist/
+dist-cli/
+release/
+*.tsbuildinfo
+
+# tauri
+src-tauri/target/
+src-tauri/gen/
+src-tauri/resources/ffmpeg/*
+!src-tauri/resources/ffmpeg/README.txt
+src-tauri/resources/engine/*
+!src-tauri/resources/engine/README.txt
+# build-engine-wheel.mjs 的產物（上一條已涵蓋；列出來是為了說明這個目錄裡除了 README 都是可重建的）
+src-tauri/resources/engine/*.whl
+src-tauri/resources/engine/requirements-torch.txt
+src-tauri/resources/engine/requirements.lock.txt
+src-tauri/resources/engine/bootstrap-engine.ps1
+src-tauri/resources/engine/uv-manifest.json
+
+# python engine
+engine/.venv/
+engine/build/
+engine/dist/
+engine/*.egg-info/
+engine/src/*.egg-info/
+# 引擎外掛（plugins/<名稱>/engine）：build-engine-wheel.mjs 的 uv build 與 editable 安裝在原始碼樹留下的東西
+plugins/*/engine/build/
+plugins/*/engine/dist/
+plugins/*/engine/*.egg-info/
+plugins/*/engine/src/*.egg-info/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# media / large artifacts (never commit footage, models, proxies)
+samples/**
+!samples/README.md
+*.webm
+*.mp4
+*.mkv
+*.mov
+*.avi
+*.aivm
+outputs/
+.aivc-cache/
+*.aivc.json
+!**/fixtures/**/*.aivc.json
+!**/fixtures/**/*.aivm
+
+# secrets / local env
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

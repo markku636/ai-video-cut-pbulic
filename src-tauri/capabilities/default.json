@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "default capability. process:allow-restart is for relaunch() after an update on macOS / Linux. There is deliberately no updater:* permission: check / download / install go through the app's own update_* commands, which stop the engine and its ffmpeg children before the installer runs (src-tauri/src/updater.rs).",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:default", "process:allow-restart"]
+}

@@ -1,0 +1,45 @@
+{
+  "_comment": [
+    "內建進 Windows 安裝檔的 ffmpeg。四個要求：",
+    "1) 釘死在不可變的 tag（BtbN 的 `latest` 是滾動 tag，會被重新上傳 → build 不可重現）。",
+    "2) 必須是 LGPL 版：GPL build 內建進來會讓整個 app 被 GPL 感染；--disable-libx264 / --disable-libx265 列進 requireConfigureFlags 就是這條的證據。",
+    "3) 必須是 shared（動態連結）：LGPL 靜態連結要另外提供可重新連結的目標檔，太麻煩。",
+    "4) 授權寫 LGPL-3.0-or-later，不是 2.1：BtbN 的 configure 帶 --enable-version3（為了 libaribb24 等 v3 元件），依 FFmpeg LICENSE.md 整份 build 升為 LGPL v3 或更新。",
+    "   ai-music-cut 的 manifest 寫 LGPL-2.1-or-later 是錯的（同一顆 zip），這裡修正；THIRD-PARTY-NOTICES.txt 附 LGPL-3.0 + GPL-3.0 全文。",
+    "換版本時 version / url / sha256 三個欄位一起改，sha256 用 `node scripts/fetch-ffmpeg.mjs --print-sha` 取得。",
+    "requireConfigureFlags / requireEncoders 是引擎編碼計畫（engine/src/aivc/media/encode_plan.py）依賴的能力：NVENC 主路、openh264 確定性 fallback、VP9 同容器輸出、ffv1 / prores 中間檔。少一個就拒收。",
+    "2026-09-17：BtbN 約兩週刪舊 autobuild（原釘的 autobuild-2026-09-04-14-01 已 404，v0.0.5 發版失敗）→ 換新 autobuild，並把**同一顆 zip 逐位元**傳到本 repo 的 release（mirror 欄位）；主 URL 404 時 fetch-ffmpeg.mjs 以 gh release download 從 mirror 取（Actions 需要 GH_TOKEN），sha256 照樣驗。換版時 mirror 也要一起上傳。"
+  ],
+  "version": "n8.1.2-53-g1005b294ff",
+  "license": "LGPL-3.0-or-later",
+  "url": "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-09-16-19-44/ffmpeg-n8.1.2-53-g1005b294ff-win64-lgpl-shared-8.1.zip",
+  "sha256": "a654407793b1caef118550de3b99e46299dcabc6649ccf9a3a325f41ff4ea414",
+  "mirror": {
+    "repo": "markku636/ai-video-cut-pbulic",
+    "tag": "deps-ffmpeg-n8.1.2-53-g1005b294ff",
+    "asset": "ffmpeg-n8.1.2-53-g1005b294ff-win64-lgpl-shared-8.1.zip"
+  },
+  "sourceUrl": "https://github.com/BtbN/FFmpeg-Builds/releases/tag/autobuild-2026-09-16-19-44",
+  "upstreamSourceUrl": "https://git.ffmpeg.org/ffmpeg.git",
+  "buildScriptsUrl": "https://github.com/BtbN/FFmpeg-Builds",
+  "zipDir": "bin",
+  "skip": [
+    "ffplay.exe"
+  ],
+  "requireConfigureFlags": [
+    "--enable-shared",
+    "--enable-version3",
+    "--enable-libopenh264",
+    "--enable-libvpx",
+    "--enable-ffnvcodec",
+    "--disable-libx264",
+    "--disable-libx265"
+  ],
+  "requireEncoders": [
+    "h264_nvenc",
+    "libopenh264",
+    "libvpx-vp9",
+    "ffv1",
+    "prores_ks"
+  ]
+}

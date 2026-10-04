@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   主題變數：深色為預設（:root），亮色由 <html class="light"> 覆寫。
+   值為 RGB 三通道（空白分隔），供 Tailwind rgb(var(--x) / <alpha>) 使用。
+   ============================================================ */
+:root {
+  /* 深色預設＝Amethyst（themes.ts buildAppVars 推導；此處為 JS 未跑前的同色兜底） */
+  --c-well: 34 33 44;
+  --c-inset: 41 41 52;
+  --c-app: 47 48 59;
+  --c-panel: 53 54 66;
+  --c-bar: 60 61 73;
+  --c-elevated: 66 68 80;
+  --c-fg: 248 248 242;
+  --c-accent: 149 128 255;
+  --c-on-accent: 26 26 34;
+  --c-shadow: 0 0 0;
+  --shadow-strength: 0.5;
+
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-full: 9999px;
+
+  --e-0: none;
+  --e-1: 0 1px 2px rgb(var(--c-shadow) / calc(var(--shadow-strength) * 0.55)),
+         inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --e-2: 0 2px 6px -1px rgb(var(--c-shadow) / calc(var(--shadow-strength) * 0.75)),
+         inset 0 1px 0 rgb(255 255 255 / 0.05);
+  --e-3: 0 6px 16px -4px rgb(var(--c-shadow) / calc(var(--shadow-strength) * 0.9));
+  --e-4: 0 18px 50px -12px rgb(var(--c-shadow) / var(--shadow-strength));
+
+  --h-sm: 28px;
+  --h-md: 32px;
+  --h-lg: 36px;
+
+  --c-success: 138 255 128;
+  --c-warning: 255 255 128;
+  --c-danger: 255 149 128;
+  --c-info: 128 255 234;
+
+  /* ---- 追蹤 / 遮罩 / 鏡頭語意色（VideoStage 圖層 + FrameTimeline 車道 + Inspector chip 共用）---- */
+  --c-track-user: 255 255 128;     /* 使用者硬釘關鍵幀：黃 */
+  --c-track-solver: 138 255 128;   /* 解算得到（tracking/static）：綠 */
+  --c-track-lost: 255 149 128;     /* lost / 低信心：橘紅 */
+  --c-track-occluded: 255 202 128; /* 遮擋中（hold）：琥珀 */
+  --c-mask-pos: 128 255 234;       /* 加選提示點 / 遮罩：青 */
+  --c-mask-neg: 255 128 191;       /* 減選提示點：粉 */
+  --c-shot: 170 153 255;           /* 鏡頭邊界 / 鏡頭帶：紫 */
+  --c-preview: 248 248 242;        /* 合成預覽框：白 */
+  color-scheme: dark;
+}
+
+:root.light {
+  --c-well: 236 236 243;
+  --c-inset: 240 240 246;
+  --c-app: 244 244 248;
+  --c-panel: 247 247 250;
+  --c-bar: 251 251 253;
+  --c-elevated: 255 255 255;
+  --c-fg: 31 31 31;
+  --c-accent: 100 74 201;
+  --c-on-accent: 248 248 242;
+  --c-shadow: 30 41 59;
+  --shadow-strength: 0.13;
+
+  --e-1: 0 1px 2px rgb(var(--c-shadow) / 0.08);
+  --e-2: 0 2px 6px -1px rgb(var(--c-shadow) / 0.10), 0 1px 2px rgb(var(--c-shadow) / 0.06);
+  --e-3: 0 8px 20px -6px rgb(var(--c-shadow) / 0.14), 0 2px 6px rgb(var(--c-shadow) / 0.08);
+  --e-4: 0 24px 60px -16px rgb(var(--c-shadow) / 0.18), 0 6px 16px rgb(var(--c-shadow) / 0.10);
+
+  --c-success: 20 113 10;
+  --c-warning: 132 110 21;
+  --c-danger: 203 58 42;
+  --c-info: 3 106 150;
+
+  --c-track-user: 158 128 0;
+  --c-track-solver: 20 113 10;
+  --c-track-lost: 196 70 40;
+  --c-track-occluded: 170 110 20;
+  --c-mask-pos: 3 120 130;
+  --c-mask-neg: 190 40 110;
+  --c-shot: 100 74 201;
+  --c-preview: 31 31 31;
+  color-scheme: light;
+}
+
+:root {
+  font-family: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-feature-settings: "cv05", "cv08";
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* 介面密度：--ui-scale 由 store/ui.ts 的 applyDensity 寫進 <html>。
+   縮的是根字級，所有 rem 與 text-[11px] 之外的尺寸都會跟著走；
+   大螢幕（2576px）用「寬鬆」讀起來才不會像在看縮圖。 */
+html {
+  font-size: calc(16px * var(--ui-scale, 1));
+}
+
+body {
+  background: rgb(var(--c-app));
+  color: rgb(var(--c-fg));
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow: hidden;
+}
+
+.shadow-lg,
+.shadow-2xl,
+.shadow-xl {
+  --tw-shadow-color: rgb(var(--c-shadow) / var(--shadow-strength));
+}
+.shadow-2xl {
+  box-shadow: var(--e-4);
+}
+
+.mono {
+  font-family: "JetBrains Mono Variable", "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--c-fg) / 0.32) transparent;
+}
+
+/* ---- 不確定進度條（2px） ---- */
+.progress-track {
+  position: relative;
+  height: 2px;
+  overflow: hidden;
+  background: rgb(var(--c-accent) / 0.15);
+}
+.progress-thumb {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: rgb(var(--c-accent) / 0.9);
+  animation: progress-slide 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes progress-slide {
+  0% { left: -40%; }
+  100% { left: 100%; }
+}
+
+/* ---- Toast / Modal 進場 ---- */
+.toast-in {
+  animation: toast-in 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(6px) translateX(8px); }
+  to { opacity: 1; transform: none; }
+}
+.modal-backdrop-in {
+  animation: modal-backdrop-in 0.14s ease forwards;
+}
+.modal-shell-in {
+  animation: modal-shell-in 0.16s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-shell-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop-in,
+  .modal-shell-in,
+  .toast-in,
+  .progress-thumb {
+    animation: none;
+  }
+}

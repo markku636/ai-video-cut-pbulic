@@ -1,0 +1,325 @@
+name: release
+
+# 推送 v 開頭的版本標籤（例：v0.1.0）時打包三個平台的安裝檔，建立 GitHub Release「AI Video Cut vX.Y.Z」：
+#   - Windows x64            NSIS（per-user）+ 內建 LGPL ffmpeg（BtbN shared build，scripts/ffmpeg-manifest.json 釘 sha256）
+#   - macOS Apple Silicon    dmg（未公證、ad-hoc 簽章：tauri.conf.json bundle.macOS.signingIdentity = "-"），不帶 ffmpeg（brew install ffmpeg）
+#   - Linux x86_64           deb（相依發行版的 ffmpeg / GStreamer）+ AppImage（用系統的 ffmpeg），不帶 ffmpeg
+# 引擎都是首次執行時由 bootstrap 腳本下載（Windows .ps1、macOS / Linux .sh）：Windows / Linux 裝 torch cu130、macOS 裝 PyPI 的 MPS 版。
+#
+# 刻意不出的組合（要加回來先看理由）：
+#   - Intel Mac（x86_64-apple-darwin）：PyPI 的 torch 2.14.0 / torchvision 0.29.0 只有 macosx_14_0_arm64 wheel（PyTorch 2.3 起停出 Intel Mac），
+#     bootstrap-engine.sh 在 Intel Mac 一定裝不起引擎 —— 出一顆裝得起來、卻永遠跑不動的 dmg 只會變成客訴。
+#     真的要加：matrix 再一列 target x86_64-apple-darwin，在同一台 macos-15（arm64）上交叉編譯即可（macos-13 runner 已下架）。
+#   - Linux aarch64 / rpm：沒有測過；rpm 的 ffmpeg 在 Fedora 是 RPM Fusion 的套件，相依名稱各發行版不同。
+#
+# 三個 build 平行跑、上傳到同一個 Release：先由 create-release 建一個 draft（重跑時沿用同 tag 的 draft），
+# 各平台用 releaseId 上傳，全部成功才由 publish-release 轉成正式發布 —— 避免三個 tauri-action 同時「找不到就建立」而撞出兩個 Release，
+# 也避免某個平台壞掉時使用者看到缺檔的 Release（失敗時 draft 留著，修好後 re-run failed jobs 會接著傳）。
+#
+# App 自動更新（docs/updater.md、src-tauri/src/updater.rs）：
+#   - build 帶 --config src-tauri/tauri.updater.conf.json（createUpdaterArtifacts）→ 每個安裝檔多一個 .sig，私鑰來自 secrets
+#     TAURI_SIGNING_PRIVATE_KEY / TAURI_SIGNING_PRIVATE_KEY_PASSWORD；推 tag 時缺私鑰或 tauri.conf.json 的公鑰是空的就停。
+#   - latest.json 不讓三個 tauri-action 各自讀改寫（同時完成會互相蓋掉平台）：publish-release 從 Release 的 .sig 一次產生，
+#     三個平台缺一個就不轉正（外掛先找平台才比版本，缺平台＝那個平台連「已是最新」都會報錯）。
+#   - App 的預設來源是 /releases/latest/download/latest.json：GitHub 的 latest 不含 draft 與 prerelease，
+#     所以只有帶 -alpha.N / -beta.N / -rc.N 後綴的 tag 才標成 prerelease（v0.0.8 這種一般版號直接是 Latest）。
+#     其他後綴 sync-version.mjs 不收：引擎 wheel 的檔名是 PEP 440（0.0.8-beta.1 → 0.0.8b1），App 只認得這三種的對照。
+#   - App 開了 requireSignedVersion：.sig 的 trusted comment 要帶這一版的 version:（@tauri-apps/cli 2.12 起 tauri build 自動寫）；
+#     buildLatestJson 對不上就丟錯、draft 留著，不發一份 App 會拒裝的 latest.json。
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create draft release
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create.outputs.result }}
+    steps:
+      - name: Create (or reuse) draft release
+        id: create
+        uses: actions/github-script@v8
+        with:
+          result-encoding: string
+          script: |
+            const tag = context.ref.replace("refs/tags/", "");
+            const body = [
+              "Pre-release builds. On first run the app installs its Python engine into the app data folder: uv, Python 3.12, torch 2.14 and the SAM 2.1 weights (about 6-7 GB download, at least 15 GB free space). Nothing is uploaded; after that it works offline.",
+              "",
+              "### Windows 10/11 x64",
+              "- Installer: `*_x64-setup.exe` (per-user NSIS).",
+              "- NVIDIA GPU with a CUDA 13.0 driver (R580 or newer); torch is the `+cu130` build. There is no automatic CPU fallback.",
+              "- FFmpeg is bundled (BtbN shared build, LGPL-3.0-or-later; see THIRD-PARTY-NOTICES.txt).",
+              "- Data: `%LOCALAPPDATA%\\net.markkulab.aivideocut`.",
+              "",
+              "### macOS 14 Sonoma or newer, Apple Silicon (M1 or later)",
+              "- Disk image: `*_aarch64.dmg`. Intel Macs are not supported (PyTorch ships no Intel macOS build of torch 2.14).",
+              "- GPU work runs on Metal (PyTorch MPS); 16 GB unified memory or more recommended.",
+              "- FFmpeg is not bundled: `brew install ffmpeg`.",
+              "- The app is not notarized (ad-hoc signed), so Gatekeeper blocks the first launch. After dragging it to Applications, either open it once and then choose System Settings > Privacy & Security > Open Anyway, or run `xattr -dr com.apple.quarantine \"/Applications/AI Video Cut.app\"`.",
+              "- Data: `~/Library/Application Support/net.markkulab.aivideocut`.",
+              "",
+              "### Linux x86_64 (Ubuntu 22.04+ / Debian 12+ or equivalent)",
+              "- `*_amd64.deb` (recommended): pulls in ffmpeg and the GStreamer plugins used for video preview.",
+              "- `*_amd64.AppImage`: install `ffmpeg`, `gstreamer1.0-plugins-good` and `gstreamer1.0-libav` (or your distro's equivalents) yourself, then `chmod +x` and run.",
+              "- NVIDIA GPU with driver R580 or newer (CUDA 13.0), glibc 2.35 or newer; torch is the `+cu130` build. There is no automatic CPU fallback.",
+              "- Data: `~/.local/share/net.markkulab.aivideocut` (or `$XDG_DATA_HOME`).",
+              "",
+              "See README for hardware requirements.",
+            ].join("\n");
+            const { owner, repo } = context.repo;
+            // 重跑整個 workflow 時同一個 tag 可能已有 draft（getReleaseByTag 看不到 draft，只能列出來找）
+            const releases = await github.paginate(github.rest.repos.listReleases, { owner, repo, per_page: 100 });
+            const existing = releases.find((r) => r.tag_name === tag);
+            if (existing) {
+              // 已發布的 Release 不再往裡面塞檔（使用者可能已經下載過）；throw 讓整個 workflow 停在這裡
+              if (!existing.draft) throw new Error(`Release ${tag} is already published; refusing to upload into it again`);
+              core.info(`reusing draft release ${existing.id} for ${tag}`);
+              return String(existing.id);
+            }
+            const { data } = await github.rest.repos.createRelease({
+              owner,
+              repo,
+              tag_name: tag,
+              name: `AI Video Cut ${tag}`,
+              body,
+              draft: true,
+              // semver 的預先發布後綴（v0.0.8-beta.1）才是 prerelease：App 的更新來源 /releases/latest/ 看不到 prerelease
+              prerelease: tag.includes("-"),
+            });
+            core.info(`created draft release ${data.id} for ${tag}`);
+            return String(data.id);
+
+  build:
+    name: ${{ matrix.name }}
+    needs: create-release
+    # workflow_dispatch（沒有 tag）時 create-release 是 skipped：照樣 build，只是不上傳到 Release
+    if: ${{ !cancelled() && (needs.create-release.result == 'success' || needs.create-release.result == 'skipped') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # 只出 NSIS（per-user，tauri.conf.json bundle.windows.nsis.installMode = currentUser）；不出 MSI —— WiX 多一份工具鏈、
+          # 而且同一台機器裝兩種格式會互相看不到。
+          - name: Windows NSIS installer
+            os: windows-latest
+            target: ""
+            args: --bundles nsis
+            artifact: ai-video-cut-windows-nsis
+            artifact_path: src-tauri/target/release/bundle/nsis/*.exe
+          # macos-14 runner 已公告 2026-11-02 退役（10 月起有 brownout 會直接失敗），用 macos-15（arm64）。
+          # 明確帶 --target：產物路徑固定、日後要加 x86_64 交叉編譯只差一列。最低系統版本 14.0 由 tauri.conf.json 設
+          # （torch / av 的 arm64 wheel 都是 macosx_14_0，再舊的系統引擎裝不起來）。
+          # app,dmg：自動更新的檔案是 .app.tar.gz（＋.sig），bundler 只在要求 app 時才產生；只出 dmg 的話 latest.json 沒有 macOS。
+          - name: macOS dmg (Apple Silicon)
+            os: macos-15
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin --bundles app,dmg
+            artifact: ai-video-cut-macos-aarch64-dmg
+            artifact_path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+          # 22.04：glibc 2.35 基準（24.04 上 build 的 AppImage 在舊發行版跑不起來；linuxdeploy 的 strip 在 24.04 也會壞）
+          - name: Linux deb + AppImage (x86_64)
+            os: ubuntu-22.04
+            target: ""
+            args: --bundles deb,appimage
+            artifact: ai-video-cut-linux-x86_64
+            artifact_path: |
+              src-tauri/target/release/bundle/deb/*.deb
+              src-tauri/target/release/bundle/appimage/*.AppImage
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+
+      # Tauri 2 在 Linux 用 WebKitGTK 4.1；keyring 的 sync-secret-service 後端連 libdbus（Cargo.lock 裡的 libdbus-sys）。
+      # patchelf / file 給 AppImage 打包（linuxdeploy）用。
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
+            libdbus-1-dev libssl-dev libxdo-dev patchelf file build-essential pkg-config
+
+      # 引擎 wheel 要 Python 3.12 + uv（engine/pyproject.toml 釘 >=3.12,<3.13；build-engine-wheel.mjs 帶 --python 3.12）。
+      # setup-uv 自 v8 起不再發 @vN 這種會移動的 major tag，只能釘完整版號（或 commit SHA）。
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v10.1.0
+
+      # peer 衝突（vitest 4 vs 幾個 vite 外掛）→ 一律 --legacy-peer-deps，與 check.yml 同
+      - name: Install frontend deps
+        run: npm ci --legacy-peer-deps
+
+      # 版號三處（Cargo.toml / tauri.conf.json / _version.py）必須等於 package.json：wheel 檔名與 sidecar hello 都比對版本，
+      # 不一致的安裝檔開起來引擎會拒絕啟動。這裡只 --check 不寫：發版 commit 本來就該是同步好的。
+      - name: Verify version sync
+        run: node scripts/sync-version.mjs --check --strict
+
+      # 只有 Windows 內建 LGPL 版 ffmpeg（URL + sha256 釘死在 scripts/ffmpeg-manifest.json；configure flags 與 encoder 清單也在腳本裡驗）。
+      # 對不上就讓 build 失敗 —— 寧可沒有安裝檔，也不要出一個來路不明或授權有問題的。
+      # BtbN 約兩週刪舊 autobuild：主 URL 404 時腳本改用 `gh release download` 從本 repo 的 deps-ffmpeg-* 鏡像取同一顆 zip
+      # （private repo 的 asset 沒有匿名 URL，要 token）；sha256 照樣驗。
+      # macOS / Linux 不跑：那顆是 win64 的 exe + DLL，帶進 dmg / deb 只是白佔空間（腳本在非 Windows 也會自己略過，雙保險）。
+      - name: Fetch bundled ffmpeg
+        if: runner.os == 'Windows'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/fetch-ffmpeg.mjs
+
+      # fetch-ffmpeg.mjs 已經檢查過；這裡再印一次版本與 encoder 清單進 log，
+      # 讓 release 頁面的 build log 本身就是「這顆 ffmpeg 有哪些能力」的證據。
+      - name: Smoke-test bundled ffmpeg
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./src-tauri/resources/ffmpeg/ffmpeg.exe -hide_banner -version
+          ./src-tauri/resources/ffmpeg/ffprobe.exe -hide_banner -version
+          ./src-tauri/resources/ffmpeg/ffmpeg.exe -hide_banner -encoders | Select-String -Pattern "h264_nvenc|libopenh264|libvpx-vp9|ffv1|prores_ks"
+
+      # 引擎 wheel + 兩份 torch requirements + requirements.lock.txt + 兩支 bootstrap 腳本 + uv-manifest.json → src-tauri/resources/engine/
+      # （tauri.conf.json 的 bundle.resources 把整個目錄帶進安裝檔；pyenv.rs 首次執行用它們建 venv）。wheel 是純 Python，三個平台產物相同。
+      - name: Build engine wheel
+        run: node scripts/build-engine-wheel.mjs
+
+      - name: Verify engine bundle
+        shell: bash
+        run: |
+          node scripts/build-engine-wheel.mjs --check
+          ls -la src-tauri/resources/engine
+
+      # 自動更新的簽章：公鑰（tauri.conf.json plugins.updater.pubkey）與私鑰（secrets.TAURI_SIGNING_PRIVATE_KEY）都在才帶
+      # updater overlay（createUpdaterArtifacts → 每個安裝檔多一個 .sig）。推 tag 發版時缺任何一個就停：沒有 .sig 的 Release，
+      # 已安裝的 App 永遠更新不到。workflow_dispatch 沒有私鑰（fork / 還沒設 secrets）時照樣出安裝檔，只是不產生更新檔。
+      - name: Updater signing setup
+        id: updater
+        shell: bash
+        env:
+          HAS_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY != '' }}
+        run: |
+          pubkey=$(node -p "require('./src-tauri/tauri.conf.json').plugins?.updater?.pubkey ?? ''")
+          if [ -n "$pubkey" ] && [ "$HAS_KEY" = "true" ]; then
+            echo "args=--config src-tauri/tauri.updater.conf.json" >> "$GITHUB_OUTPUT"
+          elif [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            echo "::error::發版需要 tauri.conf.json 的 plugins.updater.pubkey 與 secrets.TAURI_SIGNING_PRIVATE_KEY（見 docs/updater.md）"
+            exit 1
+          else
+            echo "::warning::沒有 updater 簽章設定：這次只出安裝檔，不產生自動更新用的 .sig"
+            echo "args=" >> "$GITHUB_OUTPUT"
+          fi
+
+      # 推 tag：上傳到 create-release 建好的 draft（releaseId）；只有帶 -beta 之類後綴的 tag 才是 prerelease（檔頭說明）。
+      # workflow_dispatch（沒有 tag）：releaseId 為空 → 只 build、不碰 Release，安裝檔上傳成 workflow artifact 供手測（下一步）。
+      # macOS 沒有 APPLE_* 憑證：tauri 依 signingIdentity "-" 做 ad-hoc 簽章並略過公證（警告不擋）。
+      # includeUpdaterJson: false —— latest.json 由 publish-release 一次產生（三個 job 各自讀改寫同一個檔會互相蓋掉平台）；
+      # 安裝檔旁邊的 .sig 照樣由 tauri-action 上傳。
+      - name: Build (and upload to the release on tag)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          includeUpdaterJson: false
+          args: ${{ matrix.args }} ${{ steps.updater.outputs.args }}
+
+      - name: Upload installer as workflow artifact (no tag)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
+
+  publish-release:
+    name: Publish release
+    needs: [create-release, build]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      # latest.json 的產生器（scripts/lib/updater-manifest.mjs，有單元測試）跟本機發版共用同一份
+      - uses: actions/checkout@v4
+
+      # 從 draft 上的安裝檔與 .sig 組出 latest.json（url 用固定 tag 的下載路徑：draft 的 untagged-xxx 轉正後就失效）。
+      # 三個平台（windows-x86_64 / darwin-aarch64 / linux-x86_64）缺一個就丟錯、draft 留著：修好後 re-run 這個 job 即可。
+      - name: Write latest.json for the updater
+        uses: actions/github-script@v8
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            const { pathToFileURL } = require("node:url");
+            const lib = await import(pathToFileURL(`${process.env.GITHUB_WORKSPACE}/scripts/lib/updater-manifest.mjs`).href);
+            const { owner, repo } = context.repo;
+            const tag = context.ref.replace("refs/tags/", "");
+            const release_id = Number(process.env.RELEASE_ID);
+            const assets = await github.paginate(github.rest.repos.listReleaseAssets, { owner, repo, release_id, per_page: 100 });
+            const byName = new Map(assets.map((a) => [a.name, a]));
+            const entries = [];
+            for (const a of assets) {
+              if (!lib.platformKeysForAsset(a.name).length) continue;
+              const sig = byName.get(`${a.name}.sig`);
+              if (!sig) {
+                core.warning(`${a.name} has no .sig; it is left out of latest.json`);
+                continue;
+              }
+              const { data } = await github.rest.repos.getReleaseAsset({ owner, repo, asset_id: sig.id, headers: { accept: "application/octet-stream" } });
+              entries.push({ name: a.name, url: lib.releaseAssetUrl(`${owner}/${repo}`, tag, a.name), signature: Buffer.from(data).toString("utf8").trim() });
+            }
+            const notes = `AI Video Cut ${tag}: https://github.com/${owner}/${repo}/releases/tag/${tag}`;
+            const manifest = lib.buildLatestJson({ version: tag, notes, pubDate: new Date(), assets: entries });
+            const missing = lib.missingPlatforms(manifest, ["windows-x86_64", "darwin-aarch64", "linux-x86_64"]);
+            if (missing.length) throw new Error(`latest.json is missing ${missing.join(", ")}; the release stays a draft`);
+            const old = byName.get("latest.json");
+            if (old) await github.rest.repos.deleteReleaseAsset({ owner, repo, asset_id: old.id });
+            await github.rest.repos.uploadReleaseAsset({
+              owner,
+              repo,
+              release_id,
+              name: "latest.json",
+              data: JSON.stringify(manifest, null, 2),
+              headers: { "content-type": "application/json" },
+            });
+            core.info(`latest.json: ${Object.keys(manifest.platforms).join(", ")}`);
+
+      - name: Mark the draft as published
+        uses: actions/github-script@v8
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const tag = context.ref.replace("refs/tags/", "");
+            const prerelease = tag.includes("-");
+            await github.rest.repos.updateRelease({
+              owner,
+              repo,
+              release_id: Number(process.env.RELEASE_ID),
+              draft: false,
+              prerelease,
+              // App 的預設更新來源是 /releases/latest/download/latest.json：一般版號一定要是 Latest
+              make_latest: prerelease ? "false" : "true",
+            });
+            core.info(`published release ${process.env.RELEASE_ID} (${tag})`);

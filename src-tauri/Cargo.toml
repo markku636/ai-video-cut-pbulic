@@ -1,0 +1,67 @@
+[package]
+name = "ai-video-cut"
+version = "0.0.7"
+description = "AI Video Cut — track anything in a video, then blur, replace or add effects; local GPU"
+license = "MIT"
+edition = "2021"
+# 1.90：tauri-plugin-updater / -process 2.x 宣告的最低版本（它們同時把 tauri 拉到 2.12）。
+rust-version = "1.90"
+
+[lib]
+name = "ai_video_cut_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# protocol-asset：讓 <video src= {convertFileSrc(proxy.mp4)}> 能直接播本機媒體（含 Range 請求 seek）。
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-dialog = "2"
+# App 自動更新（updater.rs）：檢查 / 下載 / 驗簽 / 安裝都走 Rust 指令，前端不拿 updater 的 JS 權限。
+# 預設 features（rustls-tls + system-proxy + zip）：TLS 走 rustls / ring，不碰 OpenSSL / NASM（同 reqwest 那一行的原則）。
+tauri-plugin-updater = "2"
+# 只用到 restart（macOS / Linux 安裝完要自己重啟；Windows 由安裝程式重開）。
+tauri-plugin-process = "2"
+serde = { version = "1", features = ["derive"] }
+# preserve_order：專案檔 JSON 鍵序照原樣寫回，diff 才好讀。
+serde_json = { version = "1", features = ["preserve_order"] }
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["io"] }
+# rustls（延續 db-kit 避開 OpenSSL / NASM 的原則）；M6 的 LLM 供應商用它，A0 只建 client。
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-native-roots", "json", "multipart", "stream"] }
+thiserror = "1"
+parking_lot = "0.12"
+dirs = "6"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+# 媒體指紋（size ‖ 首尾 4 MiB）：Python 端 media/fingerprint.py 必須逐位元重現。
+blake3 = "1"
+# requirements.lock.txt 的 .stamp（sha256，PowerShell Get-FileHash 也算得出同一個值）。
+sha2 = "0.10"
+# Windows 路徑正規化不帶 \\?\ 前綴（ffmpeg / asset protocol 都吃不下 verbatim path）。
+dunce = "1"
+rand = "0.8"
+# 內建 MCP server（loopback + bearer token）：讓 claude / codex CLI 連進來操作 App（mcp.rs）。
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "tokio"] }
+# MCP 工具結果裡的圖（PNG → base64 image content block）。
+base64 = "0.22"
+
+# 金鑰只存 OS 原生金鑰庫（M6 的 LLM 供應商用）；設定檔一律不得出現金鑰（store.rs 有測試釘住）。
+# 三平台各自的原生後端分開宣告，於非該平台編譯時 Cargo 直接忽略。
+[target.'cfg(windows)'.dependencies]
+keyring = { version = "3", features = ["windows-native"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3", features = ["apple-native"] }
+
+[target.'cfg(all(unix, not(target_os = "macos")))'.dependencies]
+keyring = { version = "3", features = ["sync-secret-service"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+lto = "thin"
+strip = "symbols"

@@ -1,0 +1,5 @@
+{
+  "build": {
+    "beforeDevCommand": "npx vite --config scripts/screenshots.vite.config.mjs"
+  }
+}

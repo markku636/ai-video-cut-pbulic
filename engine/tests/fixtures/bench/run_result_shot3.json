@@ -1,0 +1,39 @@
+{
+ "id": "cli",
+ "ok": true,
+ "result": {
+  "video": "samples/sample_clip1.webm",
+  "project": "run_shot3/real/out.aivc.json",
+  "frames": 1797,
+  "size": [
+   1280,
+   720
+  ],
+  "shots": [
+   {
+    "id": "shot3",
+    "startFrame": 926,
+    "endFrame": 1358,
+    "kind": "unknown",
+    "source": "auto"
+   }
+  ],
+  "deck": "demo-deck",
+  "timings": {
+   "probe": 0.011,
+   "index": 0.002,
+   "shots": 0.008,
+   "detect": 2.98,
+   "seg": 83.322,
+   "track": 105.567,
+   "identify": 11.931,
+   "replace": 0.093,
+   "render": 51.825,
+   "total": 255.739
+  },
+  "gpu": {
+   "maxMemoryAllocatedMB": 3743.9
+  },
+  "_note": "tests/fixtures/bench：取自 2026-09-17 shot-3 真跑 aivc --json run 的 result（只留 bench-speed 需要的欄位）"
+ }
+}
