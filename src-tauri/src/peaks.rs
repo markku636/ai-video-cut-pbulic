@@ -350,11 +350,10 @@ impl F32leFeeder {
             }
             an.push_sample(f32::from_le_bytes(self.pending));
         }
-        let whole = data.len() / 4 * 4;
-        for ch in data[..whole].chunks_exact(4) {
-            an.push_sample(f32::from_le_bytes([ch[0], ch[1], ch[2], ch[3]]));
+        let (samples, rest) = data.as_chunks::<4>();
+        for ch in samples {
+            an.push_sample(f32::from_le_bytes(*ch));
         }
-        let rest = &data[whole..];
         self.pending[..rest.len()].copy_from_slice(rest);
         self.np = rest.len();
     }
