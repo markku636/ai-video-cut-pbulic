@@ -210,8 +210,9 @@ jobs:
           ls -la src-tauri/resources/engine
 
       # 自動更新的簽章：公鑰（tauri.conf.json plugins.updater.pubkey）與私鑰（secrets.TAURI_SIGNING_PRIVATE_KEY）都在才帶
-      # updater overlay（createUpdaterArtifacts → 每個安裝檔多一個 .sig）。推 tag 發版時缺任何一個就停：沒有 .sig 的 Release，
-      # 已安裝的 App 永遠更新不到。workflow_dispatch 沒有私鑰（fork / 還沒設 secrets）時照樣出安裝檔，只是不產生更新檔。
+      # updater overlay（createUpdaterArtifacts → 每個安裝檔多一個 .sig）。公鑰有了、推 tag 卻缺私鑰就停：App 會驗章，
+      # 沒有 .sig 的 Release 已安裝的 App 永遠更新不到。公鑰是空的（App 的自動更新整個停用）時照樣發版，只是沒有更新檔 ——
+      # 這種版本裝的人之後只能手動下載新安裝檔。workflow_dispatch 沒有私鑰（fork / 還沒設 secrets）時同樣只出安裝檔。
       - name: Updater signing setup
         id: updater
         shell: bash
@@ -221,8 +222,8 @@ jobs:
           pubkey=$(node -p "require('./src-tauri/tauri.conf.json').plugins?.updater?.pubkey ?? ''")
           if [ -n "$pubkey" ] && [ "$HAS_KEY" = "true" ]; then
             echo "args=--config src-tauri/tauri.updater.conf.json" >> "$GITHUB_OUTPUT"
-          elif [ "$GITHUB_REF_TYPE" = "tag" ]; then
-            echo "::error::發版需要 tauri.conf.json 的 plugins.updater.pubkey 與 secrets.TAURI_SIGNING_PRIVATE_KEY（見 docs/updater.md）"
+          elif [ -n "$pubkey" ] && [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            echo "::error::tauri.conf.json 已設 plugins.updater.pubkey，發版需要 secrets.TAURI_SIGNING_PRIVATE_KEY（見 docs/updater.md）"
             exit 1
           else
             echo "::warning::沒有 updater 簽章設定：這次只出安裝檔，不產生自動更新用的 .sig"
@@ -262,9 +263,18 @@ jobs:
       # latest.json 的產生器（scripts/lib/updater-manifest.mjs，有單元測試）跟本機發版共用同一份
       - uses: actions/checkout@v4
 
+      # 公鑰是空的 = App 的自動更新停用、build 也沒產生 .sig：不寫 latest.json，直接轉正
+      - name: Check updater pubkey
+        id: pubkey
+        shell: bash
+        run: |
+          pubkey=$(node -p "require('./src-tauri/tauri.conf.json').plugins?.updater?.pubkey ?? ''")
+          if [ -n "$pubkey" ]; then echo "set=true" >> "$GITHUB_OUTPUT"; else echo "::warning::沒有 updater 公鑰：這版不附 latest.json"; echo "set=false" >> "$GITHUB_OUTPUT"; fi
+
       # 從 draft 上的安裝檔與 .sig 組出 latest.json（url 用固定 tag 的下載路徑：draft 的 untagged-xxx 轉正後就失效）。
       # 三個平台（windows-x86_64 / darwin-aarch64 / linux-x86_64）缺一個就丟錯、draft 留著：修好後 re-run 這個 job 即可。
       - name: Write latest.json for the updater
+        if: steps.pubkey.outputs.set == 'true'
         uses: actions/github-script@v8
         env:
           RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
